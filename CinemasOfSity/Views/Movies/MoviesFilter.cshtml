@@ -1,0 +1,109 @@
+﻿@using CinemasOfSity.Models.Movies
+@using CinemasOfSity.Models.Filter
+@using Microsoft.AspNetCore.Mvc.Rendering;
+
+@model MoviesFilter
+
+@{
+    Filter filter = new Filter()
+    {
+        Title = "Фильтр фильмов",
+        UpdateTagId = "dataList-box",
+        Action = Url.Action("Filter", "Movies"),
+        FilterSectionRows = new List<FilterRow>()
+    };
+
+    //--------------------------------------------------------------------------------------------------------
+
+    FilterSection MovieTitle = new FilterSection()
+    {
+        Title = "Название",
+        SectionViewUrl = "FilterSections/MoviesFilter_MovieTitle",
+        Filter = Model
+    };
+
+    FilterSection Sorting = new FilterSection()
+    {
+        Title = "Сортировка",
+        SectionViewUrl = "FilterSections/MoviesFilter_Sorting",
+        Filter = Model
+    };
+
+    FilterRow filterRow_1 = new FilterRow()
+    {
+        LeftSection = MovieTitle,
+        RightSection = Sorting
+    };
+    filter.FilterSectionRows.Add(filterRow_1);
+
+    //--------------------------------------------------------------------------------------------------------
+
+    FilterSection Duration = new FilterSection()
+    {
+        Title = "Продолжительность",
+        SectionViewUrl = "FilterSections/MoviesFilter_Duration",
+        Filter = Model
+    };
+
+    FilterSection AgeLimit = new FilterSection()
+    {
+        Title = "Возрастное ограничение",
+        SectionViewUrl = "FilterSections/MoviesFilter_AgeLimit",
+        Filter = Model
+    };
+
+    FilterRow filterRow_2 = new FilterRow()
+    {
+        LeftSection = Duration,
+        RightSection = AgeLimit
+    };
+    filter.FilterSectionRows.Add(filterRow_2);
+
+    //--------------------------------------------------------------------------------------------------------
+
+    FilterSection Genres = new FilterSection()
+    {
+        Title = "Жанры",
+        SectionViewUrl = "FilterSections/MoviesFilter_Genres",
+        Filter = Model
+    };
+
+    FilterSection Formates = new FilterSection()
+    {
+        Title = "Формат фильма",
+        SectionViewUrl = "FilterSections/MoviesFilter_Formats",
+        Filter = Model
+    };
+
+    FilterRow filterRow_3 = new FilterRow()
+    {
+        LeftSection = Genres,
+        RightSection = Formates
+    };
+    filter.FilterSectionRows.Add(filterRow_3);
+
+    //--------------------------------------------------------------------------------------------------------
+
+    FilterSection Countries = new FilterSection()
+    {
+        Title = "Страны",
+        SectionViewUrl = "FilterSections/MoviesFilter_Countries",
+        Filter = Model
+    };
+
+    FilterSection Directors = new FilterSection()
+    {
+        Title = "Режиссер фильма",
+        SectionViewUrl = "FilterSections/MoviesFilter_Directors",
+        Filter = Model
+    };
+
+    FilterRow filterRow_4 = new FilterRow()
+    {
+        LeftSection = Countries,
+        RightSection = Directors
+    };
+    filter.FilterSectionRows.Add(filterRow_4);
+}
+
+@await Html.PartialAsync("Filter", filter)

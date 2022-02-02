@@ -1,0 +1,105 @@
+﻿@using CinemasOfSity.Models.AddNewItem;
+
+@model AddNewItem
+
+@{
+    TagBuilder input_MovieTitle = new TagBuilder("select");
+    input_MovieTitle.Attributes.Add("class", "page-input-closed");
+    input_MovieTitle.Attributes.Add("name", "MovieTitle");
+    input_MovieTitle.Attributes.Add("required", null);
+    if (ViewBag.MovieTitles != null)
+    {
+        @foreach (string movieTitle in ViewBag.MovieTitles)
+        {
+            input_MovieTitle.InnerHtml.AppendHtml($"<option value='{movieTitle}'>{movieTitle}</option>");
+        }
+    }
+    else input_MovieTitle.InnerHtml.AppendHtml($"<option value='null'></option>");
+
+    TagBuilder input_CinemaName = new TagBuilder("select");
+    input_CinemaName.Attributes.Add("class", "page-input-closed");
+    input_CinemaName.Attributes.Add("name", "CinemaName");
+    input_CinemaName.Attributes.Add("required", null);
+    if (ViewBag.CinemaNames != null)
+    {
+        @foreach (string cinemaName in ViewBag.CinemaNames)
+        {
+            input_CinemaName.InnerHtml.AppendHtml($"<option value='{cinemaName}'>{cinemaName}</option>");
+        }
+    }
+    else input_CinemaName.InnerHtml.AppendHtml($"<option value='null'></option>");
+
+
+
+    TagBuilder input_Price = new TagBuilder("input");
+    input_Price.Attributes.Add("type", "number");
+    input_Price.Attributes.Add("class", "page-input-closed");
+    input_Price.Attributes.Add("name", "Price");
+    input_Price.Attributes.Add("min", "1");
+    input_Price.Attributes.Add("required", null);
+
+    TagBuilder input_NumberTickets = new TagBuilder("input");
+    input_NumberTickets.Attributes.Add("type", "number");
+    input_NumberTickets.Attributes.Add("class", "page-input-closed");
+    input_NumberTickets.Attributes.Add("name", "NumberOfTickets");
+    input_NumberTickets.Attributes.Add("min", "1");
+    input_NumberTickets.Attributes.Add("required", null);
+
+    TagBuilder input_Date = new TagBuilder("input");
+    input_Date.Attributes.Add("type", "date");
+    input_Date.Attributes.Add("class", "page-input-closed");
+    input_Date.Attributes.Add("name", "Date");
+    input_Date.Attributes.Add("required", null);
+
+    TagBuilder input_Time = new TagBuilder("input");
+    input_Time.Attributes.Add("type", "time");
+    input_Time.Attributes.Add("class", "page-input-closed");
+    input_Time.Attributes.Add("name", "Time");
+    input_Time.Attributes.Add("required", null);
+
+    List<NewItemsRow> newCinemaSessionRows = new List<NewItemsRow>()
+{
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Фильм",
+                InputBuilder = input_MovieTitle
+            },
+            ItemRight = new NewItem()
+            {
+                Title = "Кинотеатр",
+                InputBuilder = input_CinemaName
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Цена билета",
+                InputBuilder = input_Price
+            },
+            ItemRight = new NewItem()
+            {
+                Title = "Количество билетов",
+                InputBuilder = input_NumberTickets
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Дата",
+                InputBuilder = input_Date
+            },
+             ItemRight = new NewItem()
+            {
+                Title = "Время начала",
+                InputBuilder = input_Time
+            }
+        }
+    };
+    Model.NewItemsRows = newCinemaSessionRows;
+}
+
+@await Html.PartialAsync("AddNewItem", Model) 

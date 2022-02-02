@@ -1,0 +1,77 @@
+.dataBox {
+    position: relative;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dataBox-buttonGroup {
+    width: 100%;
+    display: flex;
+    justify-content: stretch;
+    max-width: 540px;
+}
+
+.dataBox-buttonGroup.top {
+    align-self: end
+}
+
+.dataBox-buttonGroup.bottom {
+    align-self:start
+}
+
+.dataBox-body {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #6c757d;
+    box-shadow: inset 0 0 0 0.5px #6c757d;
+}
+
+.dataBox-row-titles, .dataBox-row-contents {
+    display: flex;
+    justify-content: stretch;
+    width: 100%;
+}
+
+.dataBox-title, .dataBox-content {
+    width: 100%;
+    padding: 5px;
+}
+
+.dataBox-title > *, .dataBox-content > * {
+    display: inline-block;
+    vertical-align: middle;
+    min-height: 1.8em;
+}
+
+.dataBox-title {
+    background-color: #6c757d;
+    user-select: none;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dataBox-content {
+    display: flex;
+    justify-content: stretch;
+    background-color: white;
+    box-shadow: inset 0 0 0 0.05px #6c757d;
+    color: black;
+}
+
+.dataBox-input, .dataBox-text {
+    width: 100%;
+    text-align: center;
+    padding: 2px;
+    font-weight: 500;
+}
+
+.dataBox-input {
+    background-color: transparent !important;
+    border: 0.5px solid #c6c7c7 !important;
+    font-weight: 500;
+    outline: none !important;
+}

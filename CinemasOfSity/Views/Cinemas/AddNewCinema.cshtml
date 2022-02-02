@@ -1,0 +1,99 @@
+﻿@using CinemasOfSity.Models.AddNewItem;
+
+@model AddNewItem
+
+@{ 
+    TagBuilder input_Name = new TagBuilder("input");
+    input_Name.Attributes.Add("type", "text");
+    input_Name.Attributes.Add("class", "page-input-closed");
+    input_Name.Attributes.Add("name", "Name");
+    input_Name.Attributes.Add("required", null);
+
+    TagBuilder input_Address = new TagBuilder("input");
+    input_Address.Attributes.Add("type", "text");
+    input_Address.Attributes.Add("class", "page-input-closed");
+    input_Address.Attributes.Add("name", "Address");
+    input_Address.Attributes.Add("required", null);
+
+    TagBuilder input_Telephone = new TagBuilder("input");
+    input_Telephone.Attributes.Add("type", "tel");
+    input_Telephone.Attributes.Add("class", "page-input-closed");
+    input_Telephone.Attributes.Add("name", "Telephone");
+
+    TagBuilder input_Email = new TagBuilder("input");
+    input_Email.Attributes.Add("type", "email");
+    input_Email.Attributes.Add("class", "page-input-closed");
+    input_Email.Attributes.Add("name", "Email");
+
+    TagBuilder input_NumbersOfHalls = new TagBuilder("input");
+    input_NumbersOfHalls.Attributes.Add("type", "number");
+    input_NumbersOfHalls.Attributes.Add("class", "page-input-closed");
+    input_NumbersOfHalls.Attributes.Add("name", "NumberOfHalls");
+
+    TagBuilder input_Capacity = new TagBuilder("input");
+    input_Capacity.Attributes.Add("type", "number");
+    input_Capacity.Attributes.Add("class", "page-input-closed");
+    input_Capacity.Attributes.Add("name", "Capacity");
+
+    TagBuilder input_Description = new TagBuilder("textarea");
+    input_Description.Attributes.Add("class", "page-input-closed");
+    input_Description.Attributes.Add("name", "Description");
+    input_Description.Attributes.Add("rows", "1");
+
+    List<NewItemsRow> newCinemaRows = new List<NewItemsRow>()
+    {
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Название кинотеатра",
+                InputBuilder = input_Name
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Телефон",
+                InputBuilder = input_Telephone
+            },
+            ItemRight = new NewItem()
+            {
+                Title = "Email",
+                InputBuilder = input_Email
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Количество залов",
+                InputBuilder = input_NumbersOfHalls
+            },
+            ItemRight = new NewItem()
+            {
+                Title = "Всего мест",
+                InputBuilder = input_Capacity
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Адрес",
+                InputBuilder = input_Address
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "О кинотеатре",
+                InputBuilder = input_Description
+            }
+        }
+    };
+    Model.NewItemsRows = newCinemaRows;
+}
+
+@await Html.PartialAsync("AddNewItem", Model) 

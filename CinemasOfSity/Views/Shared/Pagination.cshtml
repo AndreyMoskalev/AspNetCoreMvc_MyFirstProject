@@ -1,0 +1,49 @@
+﻿@model CinemasOfSity.Models.Pagination
+
+<link rel="stylesheet" href="~/css/Pagination.css"/>
+
+<nav class="pagination-box">
+    <div class="pagination-item pagination-left">
+        <div class="page-number">
+            1
+        </div>
+        
+        @{ 
+            string test = Model.Action;
+        }
+
+        <a class="page-button"  data-ajax="true" data-ajax-url="@Model.Action.Replace("x", "1")" data-ajax-update="#@Model.UpdateTagId">Начало</a>
+        <a class="page-button" data-ajax="true" data-ajax-url="@Model.Action.Replace("x", $"{Model.TotalPages}")" data-ajax-update="#@Model.UpdateTagId">Конец</a>
+        <div class="page-number">
+            @Model.TotalPages
+        </div>
+    </div>
+    @{ 
+        string linkEnd = Model.Action.Remove(Model.Action.IndexOf("?"), Model.Action.Length - Model.Action.IndexOf("?"));
+    }
+    <form class="pagination-item pagination-center" data-ajax="true" data-ajax-url="@linkEnd" data-ajax-update="#@Model.UpdateTagId">
+        <input type="submit" value="Перейти" class="page-button" />
+        <input type="number" name="page" min="1" max="@Model.TotalPages"  class="form-control" id="input-page-number" placeholder="страница">
+    </form>
+    <div class="pagination-item pagination-right">
+        @if (Model.HasPreviousPage)
+        {
+            <a class="page-button" data-ajax="true" data-ajax-url="@Model.Action.Replace("x", $"{Model.PageNumber - 1}")" data-ajax-update="#@Model.UpdateTagId">Назад</a>
+        }
+        else
+        {
+            <a class="page-button disabled">Назад</a>
+        }
+        <div class="page-number">
+            @Model.PageNumber
+        </div>
+        @if (Model.HasNextPage)
+        {
+            <a class="page-button" data-ajax="true" data-ajax-url="@Model.Action.Replace("x", $"{Model.PageNumber + 1}")" data-ajax-update="#@Model.UpdateTagId">Вперед</a>
+        }
+        else
+        {
+            <a class="page-button disabled">Вперед</a>
+        }
+    </div>
+</nav>

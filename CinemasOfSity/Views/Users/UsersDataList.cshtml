@@ -1,0 +1,109 @@
+﻿@using CinemasOfSity.Models.DataList;
+@using CinemasOfSity.Models.Users;
+
+@model UsersDataList
+
+@{
+    List<DataBox> dataBoxes = new List<DataBox>();
+
+    foreach (var user in Model.Data)
+    {
+        string input_Role = $"<select name='Role' class='dataBox-input' required>";
+        if (ViewBag.Roles != null)
+        {
+            @foreach (string role in ViewBag.Roles)
+            {
+                if (role == user.Role.Name) input_Role += $"<option value='{role}' selected>{role}</option>";
+                else input_Role += $"<option value='{role}'>{role}</option>";
+            }
+            input_Role += "</select>";
+        }
+
+        List<List<TitleContentPair>> rows = new List<List<TitleContentPair>>()
+        {
+            new List<TitleContentPair>()
+            {
+                new TitleContentPair()
+                {
+                    Title = "ФИО",
+                    Content = user.FIO,
+                    Input = $"<input type='text' name='FIO' value='{user.FIO}' class='dataBox-input' required>"
+                },
+                new TitleContentPair()
+                {
+                    Title = "Роль",
+                    Content = user.Role.Name,
+                    Input = input_Role
+                }
+            },
+            new List<TitleContentPair>()
+            {
+                new TitleContentPair()
+                {
+                    Title = "Логин",
+                    Content = user.Login,
+                    Input = $"<input type='text' name='Login' value='{user.Login}' class='dataBox-input' required>"
+                },
+                new TitleContentPair()
+                {
+                    Title = "Пароль",
+                    Content = user.Password,
+                    Input = $"<input type='text' name='Password' value='{user.Password}' class='dataBox-input' required>"
+                }
+            },
+            new List<TitleContentPair>()
+{
+                new TitleContentPair()
+                {
+                    Title = "Телефон",
+                    Content = user.Telephone,
+                    Input = $"<input type='tel' name='Telephone' value='{user.Telephone}' class='dataBox-input'>"
+                },
+                new TitleContentPair()
+                {
+                    Title = "Email",
+                    Content = user.Email,
+                    Input = $"<input type='text' name='Email' value='{user.Email}' class='dataBox-input'/>"
+                }
+            },
+            new List<TitleContentPair>()
+{
+                new TitleContentPair()
+                {
+                    Title = "Адрес",
+                    Content = user.Address,
+                    Input=$"<input type='text' name='Address' value='{user.Address}' class='dataBox-input'/>"
+                }
+            }
+        };
+
+        DataBox dataBox = new DataBox()
+        {
+            ButtonToUpdate = new DataBoxButton()
+            {
+                Title = "Обновить",
+                Action = Url.Action("Update", "Users")
+            },
+            ButtonToDelete = new DataBoxButton()
+            {
+                Title = "Удалить",
+                Action = Url.Action("Delete", "Users", new { id = user.Id, page = Model.Pagination.PageNumber })
+            },
+
+            TitleContentRows = rows,
+            IdItem = $"{user.Id}",
+            PageNumber = Model.Pagination.PageNumber
+        };
+        dataBoxes.Add(dataBox);
+    }
+
+    DataList dataList = new DataList()
+    {
+        DataBoxes = dataBoxes,
+        Page = Model.Pagination,
+        UpdateTagId = Model.UpdateTagId,
+        AccessRoles = Model.AccessRoles
+    };
+
+    @await Html.PartialAsync("DataList/DataList", dataList)
+}

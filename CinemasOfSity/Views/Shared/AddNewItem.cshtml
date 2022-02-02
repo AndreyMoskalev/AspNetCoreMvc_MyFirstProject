@@ -1,0 +1,69 @@
+﻿@using CinemasOfSity.Models.AddNewItem;
+
+@model AddNewItem
+
+@{
+    string role = ViewBag.UserRole;
+}
+
+@if (role != null && Model.AccessRoles.Contains(role))
+{
+    <div class="page-box" id="addNewItem-box">
+        <button class="page-button page-section-open-button" data-toggle="collapse" data-target="#addNewItem" aria-controls="addNewItem">
+            <p>@Model.Title</p>
+            <span><i class="fa fa-sort-desc"></i></span>
+        </button>
+        <div class="collapse" id="addNewItem">
+            @{
+                string addSuccessMessage = "Новые данные успешно добавлены!";
+                string addFailureMessage = "В процессе добавления данных возникла неизвестная ошибка.";
+            }
+            <form id="addNewItem-form" data-ajax="true" data-ajax-method="post" data-ajax-url="@Model.Action"
+                  data-ajax-success="MessageBoxOpen('@addSuccessMessage')" data-ajax-failure="MessageBoxOpen('@addFailureMessage')" data-ajax-update="#@Model.UpdateTagId" class="page-section">
+                @{
+                    int rowCount = 1;
+                }
+                @foreach (NewItemsRow newItemsRow in Model.NewItemsRows)
+                {
+                    string itemBootstrapWidth = (newItemsRow.ItemLeft == null || newItemsRow.ItemRight == null) ? "col-md-12" : "col-md-6";
+                    <div class="row page-section-row">
+                        @if (newItemsRow.ItemLeft != null)
+                        {
+                            string itemId = $"addNewItem-row{rowCount}-itemLeft";
+                            if (!newItemsRow.ItemLeft.InputBuilder.Attributes.ContainsKey("id")) newItemsRow.ItemLeft.InputBuilder.Attributes.Add("id", itemId);
+                            else itemId = newItemsRow.ItemLeft.InputBuilder.Attributes["id"];
+
+                            <div class="page-section-item col-12 @itemBootstrapWidth">
+                                <label for="@itemId">@newItemsRow.ItemLeft.Title</label>
+                                @newItemsRow.ItemLeft.InputBuilder
+                            </div>
+                        }
+                        @if (newItemsRow.ItemRight != null)
+                        {
+                            string itemId = $"addNewItem-row{rowCount}-itemRight";
+                            if (!newItemsRow.ItemRight.InputBuilder.Attributes.ContainsKey("id")) newItemsRow.ItemRight.InputBuilder.Attributes.Add("id", itemId);
+                            else itemId = newItemsRow.ItemRight.InputBuilder.Attributes["id"];
+
+                            <div class="page-section-item col-12 @itemBootstrapWidth">
+                                <label for="@itemId">@newItemsRow.ItemRight.Title</label>
+                                @newItemsRow.ItemRight.InputBuilder
+                            </div>
+                        }
+                    </div>
+
+                    rowCount++;
+                }
+                <input type="submit" class="page-button page-submit" id="addNewItem-submit" value="Добавить" />
+            </form>
+        </div>
+    </div>
+
+    <style>
+        #formAdd label {
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 5px;
+            margin-top: 10px;
+        }
+    </style>
+}

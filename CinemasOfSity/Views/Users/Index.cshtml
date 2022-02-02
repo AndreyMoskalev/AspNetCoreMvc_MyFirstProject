@@ -1,0 +1,10 @@
+﻿@using CinemasOfSity.Models.Users;
+
+@model UsersView
+
+@await Html.PartialAsync("AddNewUser", Model.AddNewItem)
+@await Html.PartialAsync("UpdatedSectionsPage", new UpdatedSectionsPage()
+{
+    Filter = Model.Filter,
+    DataList = Model.DataList
+})

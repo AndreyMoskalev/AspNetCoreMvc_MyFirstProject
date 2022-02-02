@@ -1,0 +1,152 @@
+﻿@using CinemasOfSity.Models.DataList;
+@using CinemasOfSity.Models.Movies;
+
+@model MoviesDataList
+
+@{
+    List<DataBox> dataBoxes = new List<DataBox>();
+
+    foreach (var movie in Model.Data)
+    {
+        string movieDuration = (TimeSpan.Compare(movie.Duration, new TimeSpan()) == 0) ? null : movie.Duration.ToString();
+        string movieDirector = (movie.Director == null) ? null : movie.Director;
+
+        string movieGenres = "";
+        if (movie.Genre.Count != 0)
+        {
+            for (int i = 0; i < movie.Genre.Count - 1; i++)
+            {
+                movieGenres += movie.Genre[i].Name + ", ";
+            }
+            movieGenres += movie.Genre.Last().Name;
+        }
+        else movieGenres += " ";
+
+        string movieCountries = "";
+        if (movie.Country.Count != 0)
+        {
+            for (int i = 0; i < movie.Country.Count - 1; i++)
+            {
+                movieCountries += movie.Country[i].Name + ", ";
+            }
+            movieCountries += movie.Country.Last().Name;
+        }
+        else movieCountries += " ";
+
+        string AgeLimits_Select = $"<select name='AgeLimit' class='dataBox-input' required>";
+        @if (ViewBag.AgeLimits != null)
+            foreach (int ageLimit in ViewBag.AgeLimits)
+            {
+                if (movie.AgeLimit == ageLimit)
+                {
+                    AgeLimits_Select += $"<option value='{ageLimit}' selected>{ageLimit}+</option>";
+                }
+                else
+                {
+                    AgeLimits_Select += $"<option value='{ageLimit}'>{ageLimit}+</option>";
+                }
+            }
+        AgeLimits_Select += "</select>";
+
+        List<List<TitleContentPair>> rows = new List<List<TitleContentPair>>()
+        {
+            new List<TitleContentPair>()
+            {
+                new TitleContentPair()
+                {
+                    Title = "Фильм",
+                    Content = movie.Title,
+                    Input = $"<input type='text' name='Title' value='{movie.Title}' class='dataBox-input' required>",
+                }
+            },
+            new List<TitleContentPair>()
+            {
+                new TitleContentPair()
+                {
+                    Title = "Жанры",
+                    Content = movieGenres,
+                    Input = $"<input type='text' name='Genres' value='{movieGenres}' class='dataBox-input' required>"
+                },
+                new TitleContentPair()
+                {
+                    Title = "Формат фильма",
+                    Content = movie.Format,
+                    Input = $"<input type='text' name='Format' value='{movie.Format}' class='dataBox-input' required>",
+                }
+            },
+            new List<TitleContentPair>()
+            {
+                new TitleContentPair()
+                {
+                    Title = "Страны",
+                    Content = movieCountries,
+                    Input = $"<input type='text' name='Countries' value='{movieCountries}' class='dataBox-input'>"
+                },
+                new TitleContentPair()
+                {
+                    Title = "Режиссер",
+                    Content = movieDirector,
+                    Input = $"<input type='text' name='Director' value='{movieDirector}' class='dataBox-input'>"
+                }
+            },
+            new List<TitleContentPair>()
+            {
+                new TitleContentPair()
+                {
+                     Title = "Возрастное ограничение",
+                    Content = $"{movie.AgeLimit}+",
+                    Input = AgeLimits_Select
+                },
+                new TitleContentPair()
+                {
+                    Title = "Продолжительность",
+                    Content = movieDuration,
+                    Input=$"<input type='time' name='Duration' value='{movieDuration}' class='dataBox-input'/>"
+                }
+            },
+            new List<TitleContentPair>()
+            {
+                new TitleContentPair()
+                {
+                    Title = "О фильме",
+                    Content = movie.Description,
+                    Input=$"<textarea name='Description' rows='1' class='dataBox-input'>{movie.Description}</textarea>"
+                }
+            }
+        };
+
+        DataBox dataBox = new DataBox()
+        {
+            ButtonToUpdate = new DataBoxButton()
+            {
+                Title = "Обновить",
+                Action = Url.Action("Update", "Movies")
+            },
+            ButtonToDelete = new DataBoxButton()
+            {
+                Title = "Удалить",
+                Action = Url.Action("Delete", "Movies", new { id = movie.Id, page = Model.Pagination.PageNumber })
+            },
+            ButtonAdditionalFirst = new DataBoxButton()
+            {
+                Title = "Посмотреть сеансы фильма",
+                Action = Url.Action("Index", "CinemaSessions", new CinemasOfSity.Models.CinemaSessions.CinemaSessionsFilter() { MovieTitle = movie.Title })
+            },
+            TitleContentRows = rows,
+            IdItem = $"{movie.Id}",
+            PageNumber = Model.Pagination.PageNumber
+        };
+
+        dataBoxes.Add(dataBox);
+    }
+
+    DataList dataList = new DataList()
+    {
+        DataBoxes = dataBoxes,
+        Page = Model.Pagination,
+        UpdateTagId = Model.UpdateTagId,
+        AccessRoles = Model.AccessRoles
+    };
+
+    @await Html.PartialAsync("DataList/DataList", dataList)
+}

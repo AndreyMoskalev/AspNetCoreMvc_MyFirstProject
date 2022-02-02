@@ -1,0 +1,31 @@
+﻿@using CinemasOfSity.Models.CinemaSessions
+
+@model CinemaSessionsFilter
+
+@{
+    string PriceMinValue = (Model.PriceMin != 0) ? Model.PriceMin.ToString() : "";
+    string PriceMaxValue = (Model.PriceMax != 0) ? Model.PriceMax.ToString() : "";
+}
+
+<div id="filterInput_PriceMin_box" class="filterInput_Price_box">
+    <label for="filterInput_PriceMin">Минимальная цена</label>
+    <input type="number" name='PriceMin' id="filterInput_PriceMin" class='page-input-closed' value='@PriceMinValue'>
+</div>
+<div id="filterInput_PriceMax_box" class="filterInput_Price_box">
+    <label for="filterInput_PriceMax">Максимальная цена</label>
+    <input type="number" name='PriceMax' id="filterInput_PriceMax" class='page-input-closed' value='@PriceMaxValue'>
+</div>
+
+<style>
+    #filterInput_PriceMin_box {
+        margin-bottom: 10px;
+    }
+    .filterInput_Price_box{
+        display: flex;
+    }
+    .filterInput_Price_box > label {
+        min-width: 50%;
+        display: flex;
+        align-items: center;
+    }
+</style>

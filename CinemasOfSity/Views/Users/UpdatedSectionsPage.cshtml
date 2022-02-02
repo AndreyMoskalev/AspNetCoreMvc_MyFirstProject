@@ -1,0 +1,20 @@
+﻿@model CinemasOfSity.Models.Users.UpdatedSectionsPage
+
+<div id="updatedSectionsPage">
+    <div id="filter-box">
+        @await Html.PartialAsync("UsersFilter", Model.Filter)
+    </div>
+    <div id="dataList-box">
+        @await Html.PartialAsync("UsersDataList", Model.DataList)
+    </div>
+
+    @{
+        List<string> errorsList = ViewBag.Errors;
+        if (errorsList != null && errorsList.Count != 0)
+        {
+            <script type="text/javascript">
+                WriteErrors(@Json.Serialize(errorsList))
+            </script>
+        }
+    }
+</div>

@@ -1,0 +1,23 @@
+﻿@using CinemasOfSity.Models.Movies
+
+@model MoviesFilter
+
+@{
+    string DurationMinValue = (Model.DurationMin != null) ? Model.DurationMin : "";
+    string DurationMaxValue = (Model.DurationMax != null) ? Model.DurationMax : "";
+}
+
+<div id="filterInput_DurationMin">
+    <label for="filterInput_DurationMin">Минимальная продолжительность</label>
+    <input type="time" name='DurationMin' id="filterInput_DurationMin" class='page-input-closed' value='@DurationMinValue'>
+</div>
+<div id="filterInput_DurationMax">
+    <label for="filterInput_DurationMax">Максимальная продолжительность</label>
+    <input type="time" name='DurationMax' id="filterInput_DurationMax" class='page-input-closed' value='@DurationMaxValue'>
+</div>
+
+<style>
+    #filterInput_DurationMin {
+        margin-bottom: 10px;
+    }
+</style>

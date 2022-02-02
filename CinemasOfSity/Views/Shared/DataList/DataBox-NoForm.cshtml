@@ -1,0 +1,76 @@
+﻿@using CinemasOfSity.Models.DataList;
+@using Microsoft.AspNetCore.Mvc.Rendering;
+@using System;
+
+@model DataBox;
+
+@{
+    double opacity = 0;
+    double opacityMax = 0.08;
+    int temp = 0;
+}
+
+<div id="@Model.IdDataBox" class="dataBox">
+    <div class="dataBox-body">
+        @foreach (List<TitleContentPair> row in Model.TitleContentRows)
+        {
+            if (row.Count == 1) temp = 0;
+            if (temp % 2 == 0)
+            {
+                opacity = 0;
+                opacityMax = Math.Abs(opacityMax);
+            }
+            else
+            {
+                opacity = Math.Abs(opacityMax);
+                opacityMax = -Math.Abs(opacityMax);
+            }
+
+            TagBuilder dataBoxRow = new TagBuilder("div");
+            dataBoxRow.Attributes.Add("class", "dataBox-row");
+
+            TagBuilder rowTitles = new TagBuilder("div");
+            dataBoxRow.InnerHtml.AppendHtml(rowTitles);
+            rowTitles.Attributes.Add("class", "dataBox-row-titles");
+
+            TagBuilder rowContents = new TagBuilder("div");
+            dataBoxRow.InnerHtml.AppendHtml(rowContents);
+            rowContents.Attributes.Add("class", "dataBox-row-contents");
+
+            foreach (TitleContentPair item in row)
+            {
+                string opacityString = opacity.ToString(System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+
+                TagBuilder dataBoxTitle = new TagBuilder("div");
+                rowTitles.InnerHtml.AppendHtml(dataBoxTitle);
+                dataBoxTitle.Attributes.Add("class", "dataBox-title");
+                dataBoxTitle.Attributes.Add("style", $"background-image: linear-gradient(rgba(255, 255, 255,{opacityString}), rgba(255, 255, 255,{opacityString}))");
+                dataBoxTitle.InnerHtml.AppendHtml(Html.Raw($"<p>{item.Title}</p>"));
+
+                TagBuilder dataBoxContent = new TagBuilder("div");
+                rowContents.InnerHtml.AppendHtml(dataBoxContent);
+                dataBoxContent.Attributes.Add("class", "dataBox-content");
+                dataBoxContent.InnerHtml.AppendHtml($"<p class='dataBox-text'>{item.Content}</p>");
+
+                opacity += opacityMax;
+                opacityMax *= -1;
+            }
+            temp++;
+
+            @dataBoxRow
+        }
+    </div>
+    @if (Model.ButtonAdditionalFirst != null || Model.ButtonAdditionalTwo != null)
+    {
+        <div class="dataBox-buttonGroup bottom">
+            @if (Model.ButtonAdditionalFirst != null)
+            {
+                <a class='page-button' href='@Model.ButtonAdditionalFirst.Action'>@Model.ButtonAdditionalFirst.Title</a>
+            }
+            @if (Model.ButtonAdditionalTwo != null)
+            {
+                <a class='page-button' href='@Model.ButtonAdditionalTwo.Action'>@Model.ButtonAdditionalTwo.Title</a>
+            }
+        </div>
+    }
+</div>

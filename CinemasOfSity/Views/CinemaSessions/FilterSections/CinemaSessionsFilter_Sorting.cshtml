@@ -1,0 +1,12 @@
+﻿@using CinemasOfSity.Models.CinemaSessions
+
+@model CinemaSessionsFilter
+
+@foreach (var sorting in ViewBag.SortingCriteria)
+{
+    string check = (Model.SortingCriterion != null && Model.SortingCriterion == sorting.Key) ? "checked" : "";
+    <div class="custom-control custom-radio">
+        <input type='radio' name='SortingCriterion' value='@sorting.Key' class='custom-control-input' id='filterInput_Sorting_@sorting.Key' @check>
+        <label class='custom-control-label' for='filterInput_Sorting_@sorting.Key'>@sorting.Value</label>
+    </div>
+}

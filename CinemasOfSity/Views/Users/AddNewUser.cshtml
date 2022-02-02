@@ -1,0 +1,100 @@
+﻿@using CinemasOfSity.Models.AddNewItem;
+
+@model AddNewItem
+
+@{
+    TagBuilder input_FIO = new TagBuilder("input");
+    input_FIO.Attributes.Add("class", "page-input-closed");
+    input_FIO.Attributes.Add("name", "FIO");
+    input_FIO.Attributes.Add("required", null);
+
+    TagBuilder input_Login = new TagBuilder("input");
+    input_Login.Attributes.Add("class", "page-input-closed");
+    input_Login.Attributes.Add("name", "Login");
+    input_Login.Attributes.Add("required", null);
+
+    TagBuilder input_Password = new TagBuilder("input");
+    input_Password.Attributes.Add("class", "page-input-closed");
+    input_Password.Attributes.Add("name", "Password");
+    input_Password.Attributes.Add("required", null);
+
+    TagBuilder input_Address = new TagBuilder("input");
+    input_Address.Attributes.Add("class", "page-input-closed");
+    input_Address.Attributes.Add("name", "Address");
+
+    TagBuilder input_Telephone = new TagBuilder("input");
+    input_Telephone.Attributes.Add("type", "tel");
+    input_Telephone.Attributes.Add("class", "page-input-closed");
+    input_Telephone.Attributes.Add("name", "Telephone");
+
+    TagBuilder input_Email = new TagBuilder("input");
+    input_Email.Attributes.Add("type", "email");
+    input_Email.Attributes.Add("class", "page-input-closed");
+    input_Email.Attributes.Add("name", "Email");
+
+    TagBuilder input_Role = new TagBuilder("select");
+    input_Role.Attributes.Add("class", "page-input-closed");
+    input_Role.Attributes.Add("name", "Role");
+    input_Role.Attributes.Add("required", null);
+    if (ViewBag.Roles != null)
+    {
+        @foreach (string role in ViewBag.Roles)
+        {
+            input_Role.InnerHtml.AppendHtml($"<option value='{role}'>{role}</option>");
+        }
+    }
+
+    List<NewItemsRow> newUserRows = new List<NewItemsRow>()
+    {
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "ФИО",
+                InputBuilder = input_FIO
+            },
+            ItemRight = new NewItem()
+            {
+                Title = "Роль",
+                InputBuilder = input_Role
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Логин",
+                InputBuilder = input_Login
+            },
+            ItemRight = new NewItem()
+            {
+                Title = "Пароль",
+                InputBuilder = input_Password
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Телефон",
+                InputBuilder = input_Telephone
+            },
+             ItemRight = new NewItem()
+            {
+                Title = "Email",
+                InputBuilder = input_Email
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Адрес",
+                InputBuilder = input_Address
+            }
+        }
+    };
+    Model.NewItemsRows = newUserRows;
+}
+
+@await Html.PartialAsync("AddNewItem", Model) 

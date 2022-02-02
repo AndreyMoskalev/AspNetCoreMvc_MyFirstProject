@@ -1,0 +1,15 @@
+﻿@using CinemasOfSity.Models.Cinemas
+
+@model CinemasFilter
+
+@{
+    string inputValue = (Model.CinemaName != null) ? Model.CinemaName : "";
+}
+<label for="filterInput_CinemaName">Название кинотеатра</label>
+<input type="text" name='CinemaName' id="filterInput_CinemaName" class='page-input-closed' value='@inputValue' list="filterInput_CinemaNameList">
+<datalist id="filterInput_CinemaNameList">
+    @foreach (var cinemaName in ViewBag.CinemaNames)
+    {
+        <option>@cinemaName</option>
+    }
+</datalist> 

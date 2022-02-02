@@ -1,0 +1,20 @@
+﻿@using CinemasOfSity.Models.Users
+
+@model UsersFilter
+
+@{
+    string UserFIOValue = (Model.FIO != null) ? Model.FIO : "";
+    List<string> usersFIO = ViewBag.UsersFIO;
+}
+<div id="filterInput_FIO_box">
+    <label for="filterInput_FIO">ФИО</label>
+    <input type="text" name='FIO' id="filterInput_FIO" class='page-input-closed' value='@UserFIOValue' list="filterInput_FIOList">
+    <datalist id="filterInput_FIOList">
+        
+        @if (usersFIO != null && usersFIO.Count > 0)
+        foreach (string userFIO in usersFIO)
+        {
+            <option>@userFIO</option>
+        }
+    </datalist>
+</div>

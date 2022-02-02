@@ -1,0 +1,115 @@
+﻿@using CinemasOfSity.Models.DataList;
+@using CinemasOfSity.Models.CinemaSessions;
+
+@model CinemaSessionsDataList
+
+@{
+    List<DataBox> dataBoxes = new List<DataBox>();
+
+    foreach (var cinemaSession in Model.Data)
+    {
+        string MovieTitles_Select = $"<select name='MovieTitle' class='dataBox-input' required>";
+        foreach (string movieTitle in ViewBag.MovieTitles)
+        {
+            if (movieTitle == cinemaSession.Movie.Title) MovieTitles_Select += $"<option value='{movieTitle}' selected>{movieTitle}</option>";
+            else MovieTitles_Select += $"<option value='{movieTitle}'>{movieTitle}</option>";
+        }
+        MovieTitles_Select += "</select>";
+
+        string CinemaNames_Select = $"<select name='CinemaName' class='dataBox-input' required>";
+        foreach (var cinemaName in ViewBag.CinemaNames)
+        {
+            if (cinemaName == cinemaSession.Cinema.Name) CinemaNames_Select += $"<option value='{cinemaName}' selected>{cinemaName}</option>";
+            else CinemaNames_Select += $"<option value='{cinemaName}'>{cinemaName}</option>";
+        }
+        CinemaNames_Select += "</select>";
+
+        List<List<TitleContentPair>> rows = new List<List<TitleContentPair>>()
+        {
+            new List<TitleContentPair>()
+            {
+                new TitleContentPair()
+                {
+                    Title = "Фильм",
+                    Content = cinemaSession.Movie.Title,
+                    Input = MovieTitles_Select
+                },
+                new TitleContentPair()
+                {
+                    Title = "Кинотеатр",
+                    Content = cinemaSession.Cinema.Name,
+                    Input = CinemaNames_Select
+                }
+            },
+            new List<TitleContentPair>()
+            {
+                new TitleContentPair()
+                {
+                    Title = "Цена билета",
+                    Content = cinemaSession.Price.ToString(),
+                    Input = $"<input type='number' min='1' name='Price' value='{cinemaSession.Price}' class='dataBox-input' required>"
+                },
+                new TitleContentPair()
+                {
+                    Title = "Количество билетов",
+                    Content = cinemaSession.NumberOfTickets.ToString(),
+                    Input = $"<input type='number' min='1' name='NumberOfTickets' value='{cinemaSession.NumberOfTickets}' class='dataBox-input' required />"
+                }
+            },
+            new List<TitleContentPair>()
+            {
+                new TitleContentPair()
+                {
+                    Title = "Дата",
+                    Content = cinemaSession.DateTime.ToShortDateString(),
+                    Input=$"<input type='date' name='Date' value='{cinemaSession.DateTime.ToString("yyyy-MM-dd")}' class='dataBox-input' required />"
+                },
+                new TitleContentPair()
+                {
+                    Title = "Время начала",
+                    Content = cinemaSession.DateTime.ToShortTimeString(),
+                    Input=$"<input type='time' name='Time' value='{cinemaSession.DateTime.TimeOfDay.ToString()}' class='dataBox-input' required />"
+                }
+            }
+        };
+
+        DataBox dataBox = new DataBox()
+        {
+            ButtonToUpdate = new DataBoxButton()
+            {
+                Title = "Обновить",
+                Action = Url.Action("Update", "CinemaSessions")
+            },
+            ButtonToDelete = new DataBoxButton()
+            {
+                Title = "Удалить",
+                Action = Url.Action("Delete", "CinemaSessions", new { id = cinemaSession.Id, page = Model.Pagination.PageNumber })
+            },
+            ButtonAdditionalFirst = new DataBoxButton()
+            {
+                Title = "О фильме",
+                Action = Url.Action("Index", "Movies", new CinemasOfSity.Models.Movies.MoviesFilter() { MovieTitle = cinemaSession.Movie.Title })
+            },
+            ButtonAdditionalTwo = new DataBoxButton()
+            {
+                Title = "О кинотеатре",
+                Action = Url.Action("Index", "Cinemas", new CinemasOfSity.Models.Cinemas.CinemasFilter() { CinemaName = cinemaSession.Cinema.Name })
+            },
+            TitleContentRows = rows,
+            IdItem = $"{cinemaSession.Id}",
+            PageNumber = Model.Pagination.PageNumber
+        };
+
+        dataBoxes.Add(dataBox);
+    }
+
+    DataList dataList = new DataList()
+    {
+        DataBoxes = dataBoxes,
+        Page = Model.Pagination,
+        UpdateTagId = Model.UpdateTagId,
+        AccessRoles = Model.AccessRoles
+    };
+
+    @await Html.PartialAsync("DataList/DataList", dataList)
+}

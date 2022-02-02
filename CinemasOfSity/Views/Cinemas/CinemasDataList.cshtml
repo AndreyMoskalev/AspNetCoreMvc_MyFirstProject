@@ -1,0 +1,110 @@
+﻿@using CinemasOfSity.Models.DataList;
+@using CinemasOfSity.Models.Cinemas;
+
+@model CinemasDataList
+
+@{
+    List<DataBox> dataBoxes = new List<DataBox>();
+
+    foreach (var cinema in Model.Data)
+    {
+
+        string? numberOfHalls = (cinema.NumberOfHalls == 0) ? null : $"{cinema.NumberOfHalls}";
+        string? capacity = (cinema.Capacity == 0) ? null : $"{cinema.Capacity}";
+
+        List<List<TitleContentPair>> rows = new List<List<TitleContentPair>>()
+        {
+                new List<TitleContentPair>()
+                {
+                    new TitleContentPair()
+                    {
+                        Title = "Кинотеатр",
+                        Content = cinema.Name,
+                        Input = $"<input type='text' name='Name' value='{cinema.Name}' class='dataBox-input' required>"
+                    }
+                },
+                new List<TitleContentPair>()
+                {
+                    new TitleContentPair()
+                    {
+                        Title = "Телефон",
+                        Content = cinema.Telephone,
+                        Input = $"<input type='text' name='Telephone' value='{cinema.Telephone}' class='dataBox-input'>"
+                    },
+                    new TitleContentPair()
+                    {
+                        Title = "Email",
+                        Content = cinema.Email,
+                        Input = $"<input type='email' name='Email' value='{cinema.Email}' class='dataBox-input'>"
+                    }
+                },
+                new List<TitleContentPair>()
+                {
+                    new TitleContentPair()
+                    {
+                        Title = "Количество залов",
+                        Content =  numberOfHalls,
+                        Input = $"<input type='number' name='NumberOfHalls' value='{numberOfHalls}' class='dataBox-input'>"
+                    },
+                    new TitleContentPair()
+                    {
+                        Title = "Всего мест",
+                        Content = capacity,
+                        Input = $"<input type='number' name='Capacity' value='{capacity}' class='dataBox-input'>"
+                    }
+                },
+                new List<TitleContentPair>()
+                {
+                    new TitleContentPair()
+                    {
+                        Title = "Адрес",
+                        Content = cinema.Address,
+                        Input = $"<input type='text' name='Address' value='{cinema.Address}' class='dataBox-input' required>"
+                    }
+                },
+                new List<TitleContentPair>()
+                {
+                    new TitleContentPair()
+                    {
+                        Title = "О кинотеатре",
+                        Content = cinema.Description,
+                        Input=$"<textarea name='Description' rows='1' class='dataBox-input'>{cinema.Description}</textarea>"
+                    }
+                }
+            };
+
+        DataBox dataBox = new DataBox()
+        {
+            ButtonToUpdate = new DataBoxButton()
+            {
+                Title = "Обновить",
+                Action = Url.Action("Update", "Cinemas")
+            },
+            ButtonToDelete = new DataBoxButton()
+            {
+                Title = "Удалить",
+                Action = Url.Action("Delete", "Cinemas", new { id = cinema.Id, page = Model.Pagination.PageNumber })
+            },
+            ButtonAdditionalFirst = new DataBoxButton()
+            {
+                Title = "Посмотреть сеансы кинотеатра",
+                Action = Url.Action("Index", "CinemaSessions", new CinemasOfSity.Models.CinemaSessions.CinemaSessionsFilter() { CinemaName = cinema.Name })
+            },
+            TitleContentRows = rows,
+            IdItem = $"{cinema.Id}",
+            PageNumber = Model.Pagination.PageNumber
+        };
+
+        dataBoxes.Add(dataBox);
+    }
+
+    DataList dataList = new DataList()
+    {
+        DataBoxes = dataBoxes,
+        Page = Model.Pagination,
+        UpdateTagId = Model.UpdateTagId,
+        AccessRoles = Model.AccessRoles
+    };
+
+    @await Html.PartialAsync("DataList/DataList", dataList)
+}

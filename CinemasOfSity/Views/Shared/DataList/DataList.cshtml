@@ -1,0 +1,54 @@
+﻿@using CinemasOfSity.Models.DataList;
+
+@model DataList
+
+<div class="page-box" id="data-list">
+    <link rel="stylesheet" href="~/css/DataBox.css" />
+
+    @{
+        string userRole = ViewBag.UserRole;
+        int dataBoxNumber = 1;
+    }
+
+    @if (Model.DataBoxes.Count == 0)
+    {
+        <div id="notDataBox">
+            Нет данных
+        </div>
+    }
+    else if (userRole != null && Model.AccessRoles.Contains(userRole))
+    {
+        @foreach (var dataBox in Model.DataBoxes)
+        {
+            string idDataBox = $"dataBox{dataBoxNumber}";
+            dataBox.IdDataBox = idDataBox;
+            dataBox.UpdateTagId = Model.UpdateTagId;
+            @await Html.PartialAsync("DataList/DataBox-Form", dataBox);
+            dataBoxNumber++;
+        }
+    }
+    else
+    {
+        @foreach (var dataBox in Model.DataBoxes)
+        {
+            string idDataBox = $"dataBox{dataBoxNumber}";
+            dataBox.IdDataBox = idDataBox;
+            dataBox.UpdateTagId = Model.UpdateTagId;
+            @await Html.PartialAsync("DataList/DataBox-NoForm", dataBox);
+            dataBoxNumber++;
+        }
+    }
+    @await Html.PartialAsync("Pagination", Model.Page)
+
+    <style>
+        #notDataBox {
+            min-height: 300px;
+            font-size: 36px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+    </style>
+</div>

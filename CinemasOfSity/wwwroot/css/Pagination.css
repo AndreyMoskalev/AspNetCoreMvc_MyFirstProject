@@ -1,0 +1,89 @@
+﻿.pagination-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pagination-center > input:focus {
+    box-shadow: none;
+    border: 1px solid #ced4da;
+}
+
+.page-number {
+    position: relative;
+    display: block;
+    padding: 0.5rem 1rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: black;
+    background-color: #fff;
+    user-select: none;
+}
+
+.pagination-item {
+    display: flex;
+    justify-content: stretch;
+    width: 30%;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 0 0 0.5px #6c757d;
+}
+
+#input-page-number {
+    max-width: 130px;
+    text-align: center;
+}
+
+.pagination-item > a, .pagination-item > input {
+    width: 100%;
+    border-radius: 0;
+    min-width: 80px;
+    border: none;
+}
+
+@media (max-width: 992px) {
+
+    .pagination-box {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .pagination-item {
+        width: 48%;
+    }
+
+    .pagination-right {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .pagination-right > .page-number {
+        padding: 0.5rem 2.65rem;
+    }
+}
+
+@media (max-width: 770px) {
+
+    .pagination-item {
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .pagination-center {
+        max-width: 260px;
+    }
+
+    .pagination-box {
+        justify-content: center;
+    }
+
+    .pagination-left {
+        margin-top: 0 !important;
+    }
+}
+
+@media (max-width: 450px) {
+    .pagination-center {
+        max-width: 100% !important;
+    }
+}

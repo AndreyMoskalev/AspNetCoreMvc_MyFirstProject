@@ -1,0 +1,20 @@
+﻿@using CinemasOfSity.Models.Users
+
+@model UsersFilter
+
+@{
+    string UserLoginValue = (Model.Login != null) ? Model.Login : "";
+    List<string> userLogins = ViewBag.UserLogins;
+}
+<div id="filterInput_Login_box">
+    <label for="filterInput_Login">Логин</label>
+    <input type="text" name='Login' id="filterInput_Login" class='page-input-closed' value='@UserLoginValue' list="filterInput_LoginsList">
+    <datalist id="filterInput_LoginsList">
+
+        @if (userLogins != null && userLogins.Count > 0)
+        foreach (string userLogin in userLogins)
+        {
+            <option>@userLogin</option>
+        }
+    </datalist>
+</div>

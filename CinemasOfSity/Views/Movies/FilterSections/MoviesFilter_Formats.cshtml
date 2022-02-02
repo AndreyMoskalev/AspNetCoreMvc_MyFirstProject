@@ -1,0 +1,12 @@
+﻿@using CinemasOfSity.Models.Movies
+
+@model MoviesFilter
+@if (ViewBag.MovieFormats != null)
+@foreach (string format in ViewBag.MovieFormats)
+{
+    string check = (Model.Formats != null && Model.Formats.Contains(format)) ? "checked" : "";
+    <div class="custom-control custom-checkbox">
+        <input type='checkbox' name='Formats' value='@format' class='custom-control-input' id='filterInput_Countries_@format' @check>
+        <label class='custom-control-label' for='filterInput_Countries_@format'>@format</label>
+    </div>
+}

@@ -1,0 +1,23 @@
+﻿@using CinemasOfSity.Models.CinemaSessions
+
+@model CinemaSessionsFilter
+
+@{ 
+    string DateTimeMinValue = (Model.DateTimeMin != null) ? Model.DateTimeMin : "";
+    string DateTimeMaxValue = (Model.DateTimeMax != null) ? Model.DateTimeMax : "";
+}
+
+<div id="filterInput_DateTimeMin_box">
+    <label for="filterInput_DateTimeMin">Минимальные значения даты и времени</label>
+    <input type="datetime-local" name='DateTimeMin' id="filterInput_DateTimeMin" class='page-input-closed' value='@DateTimeMinValue'>
+</div>
+<div id="filterInput_DateTimeMax_box">
+    <label for="filterInput_DateTimeMax">Максимальные значения даты и времени</label>
+    <input type="datetime-local" name='DateTimeMax' id="filterInput_DateTimeMax" class='page-input-closed' value='@DateTimeMaxValue'>
+</div>
+
+<style>
+    #filterInput_DateTimeMin_box {
+        margin-bottom: 10px;
+    }
+</style>

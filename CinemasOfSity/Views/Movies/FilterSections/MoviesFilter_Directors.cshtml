@@ -1,0 +1,12 @@
+﻿@using CinemasOfSity.Models.Movies
+
+@model MoviesFilter
+@if (ViewBag.MovieDirectors != null)
+@foreach (string director in ViewBag.MovieDirectors)
+{
+    string check = (Model.Directors != null && Model.Directors.Contains(director)) ? "checked" : "";
+    <div class="custom-control custom-checkbox">
+        <input type='checkbox' name='Directors' value='@director' class='custom-control-input' id='filterInput_Countries_@director' @check>
+        <label class='custom-control-label' for='filterInput_Countries_@director'>@director</label>
+    </div>
+}

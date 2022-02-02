@@ -1,0 +1,39 @@
+﻿@using CinemasOfSity.Models.Cinemas
+@using CinemasOfSity.Models.Filter
+
+@model CinemasFilter
+
+@{
+    Filter filter = new Filter()
+    {
+        Title = "Фильтр кинотеатров",
+        UpdateTagId = "dataList-box",
+        Action = Url.Action("Filter", "Cinemas"),
+        FilterSectionRows = new List<FilterRow>()
+    };
+
+    //--------------------------------------------------------------------------------------------------------
+
+    FilterSection MovieTitle = new FilterSection()
+    {
+        Title = "Название",
+        SectionViewUrl = "FilterSections/CinemasFilter_CinemaName",
+        Filter = Model
+    };
+
+    FilterSection Sorting = new FilterSection()
+    {
+        Title = "Сортировка",
+        SectionViewUrl = "FilterSections/CinemasFilter_Sorting",
+        Filter = Model
+    };
+
+    FilterRow filterRow_1 = new FilterRow()
+    {
+        LeftSection = MovieTitle,
+        RightSection = Sorting
+    };
+    filter.FilterSectionRows.Add(filterRow_1);
+}
+
+@await Html.PartialAsync("Filter", filter)

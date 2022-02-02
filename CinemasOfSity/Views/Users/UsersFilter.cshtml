@@ -1,0 +1,38 @@
+﻿@using CinemasOfSity.Models.Users
+@using CinemasOfSity.Models.Filter
+
+@model UsersFilter
+
+@{
+    Filter filter = new Filter()
+    {
+        Title = "Поиск пользователя",
+        UpdateTagId = "dataList-box",
+        Action = Url.Action("Filter", "Users"),
+        FilterSectionRows = new List<FilterRow>()
+    };
+
+    //--------------------------------------------------------------------------------------------------------
+
+    FilterSection FIO = new FilterSection()
+    {
+        Title = "Поиск по ФИО",
+        SectionViewUrl = "FilterSections/UsersFilter_FIO",
+        Filter = Model
+    };
+
+    FilterSection Login = new FilterSection()
+    {
+        Title = "Поиск по логину",
+        SectionViewUrl = "FilterSections/UsersFilter_Login",
+        Filter = Model
+    };
+
+    FilterRow filterRow_1 = new FilterRow()
+    {
+        LeftSection = FIO,
+        RightSection = Login
+    };
+    filter.FilterSectionRows.Add(filterRow_1);
+}
+@await Html.PartialAsync("Filter", filter)

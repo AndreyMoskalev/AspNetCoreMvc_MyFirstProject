@@ -1,0 +1,118 @@
+﻿@using CinemasOfSity.Models.AddNewItem;
+
+@model AddNewItem
+
+@{
+    TagBuilder input_Title = new TagBuilder("input");
+    input_Title.Attributes.Add("type", "text");
+    input_Title.Attributes.Add("class", "page-input-closed");
+    input_Title.Attributes.Add("name", "Title");
+    input_Title.Attributes.Add("required", null);
+
+    TagBuilder input_Format = new TagBuilder("input");
+    input_Format.Attributes.Add("type", "text");
+    input_Format.Attributes.Add("class", "page-input-closed");
+    input_Format.Attributes.Add("name", "Format");
+    input_Format.Attributes.Add("required", null);
+
+    TagBuilder input_Director = new TagBuilder("input");
+    input_Director.Attributes.Add("type", "text");
+    input_Director.Attributes.Add("class", "page-input-closed");
+    input_Director.Attributes.Add("name", "Director");
+
+    TagBuilder input_Genres = new TagBuilder("input");
+    input_Genres.Attributes.Add("type", "text");
+    input_Genres.Attributes.Add("class", "page-input-closed");
+    input_Genres.Attributes.Add("name", "Genres");
+    input_Genres.Attributes.Add("required", null);
+
+    TagBuilder input_Countries = new TagBuilder("input");
+    input_Countries.Attributes.Add("type", "text");
+    input_Countries.Attributes.Add("class", "page-input-closed");
+    input_Countries.Attributes.Add("name", "Countries");
+
+    TagBuilder input_Duration = new TagBuilder("input");
+    input_Duration.Attributes.Add("type", "time");
+    input_Duration.Attributes.Add("class", "page-input-closed");
+    input_Duration.Attributes.Add("name", "Duration");
+
+    TagBuilder input_AgeLimit = new TagBuilder("select");
+    input_AgeLimit.Attributes.Add("class", "page-input-closed");
+    input_AgeLimit.Attributes.Add("name", "AgeLimit");
+    input_AgeLimit.Attributes.Add("required", null);
+    if (ViewBag.AgeLimits != null)
+    {
+        foreach (int ageLimit in ViewBag.AgeLimits)
+        {
+            input_AgeLimit.InnerHtml.AppendHtml($"<option value='{ageLimit}'>{ageLimit}+</option>");
+        }
+    }
+    else input_AgeLimit.InnerHtml.AppendHtml($"<option value='0'></option>");
+
+    TagBuilder input_Description = new TagBuilder("textarea");
+    input_Description.Attributes.Add("class", "page-input-closed");
+    input_Description.Attributes.Add("name", "Description");
+    input_Description.Attributes.Add("rows", "1");
+
+    List<NewItemsRow> newCinemaRows = new List<NewItemsRow>()
+    {
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Название фильма",
+                InputBuilder = input_Title
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Жанры (через запятую)",
+                InputBuilder = input_Genres
+            },
+            ItemRight = new NewItem()
+            {
+                Title = "Формат фильма",
+                InputBuilder = input_Format
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Страны (через запятую)",
+                InputBuilder = input_Countries
+            },
+            ItemRight = new NewItem()
+            {
+                Title = "Режиссер фильма",
+                InputBuilder = input_Director
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "Возрастное ограничение",
+                InputBuilder = input_AgeLimit
+            },
+            ItemRight = new NewItem()
+            {
+                Title = "Продолжительность",
+                InputBuilder = input_Duration
+            }
+        },
+        new NewItemsRow()
+        {
+            ItemLeft = new NewItem()
+            {
+                Title = "О фильме",
+                InputBuilder = input_Description
+            }
+        }
+    };
+    Model.NewItemsRows = newCinemaRows;
+}
+
+@await Html.PartialAsync("AddNewItem", Model) 

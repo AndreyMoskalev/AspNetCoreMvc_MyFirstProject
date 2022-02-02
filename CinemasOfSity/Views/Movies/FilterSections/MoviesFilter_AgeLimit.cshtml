@@ -1,0 +1,53 @@
+﻿@using CinemasOfSity.Models.Movies
+
+@model MoviesFilter
+
+@{
+    string AgeLimitMinValue = (Model.AgeLimitMin != 0) ? Model.AgeLimitMin.ToString() : "";
+    string AgeLimitMaxValue = (Model.AgeLimitMax != 0) ? Model.AgeLimitMax.ToString() : "";
+    List<int> AgeLimits = ViewBag.AgeLimits;
+}
+
+<div id="filterInput_AgeLimitMin_box">
+    <label for="filterInput_AgeLimitMin">Минимальное возрастное ограничение</label>
+    <select name="AgeLimitMin" id="filterInput_AgeLimitMin" class='page-input-closed'>
+        @if (AgeLimits != null)
+            @foreach (int ageLimit in AgeLimits)
+            {
+                if (Model.AgeLimitMin != 0 && Model.AgeLimitMin == ageLimit)
+                {
+                    <option value="@ageLimit" selected>@ageLimit+</option>
+                }
+                else
+                {
+                    <option value="@ageLimit">@ageLimit+</option>
+                }
+            }
+    </select>
+</div>
+@{
+    @if (AgeLimits != null) AgeLimits.Reverse();
+}
+<div id="filterInput_AgeLimitMax_box">
+    <label for="filterInput_AgeLimitMax">Максимальное возрастное ограничение</label>
+    <select name="AgeLimitMax" id="filterInput_AgeLimitMax" class='page-input-closed'>
+        @if (AgeLimits != null)
+        @foreach (int ageLimit in AgeLimits)
+        {
+            if (Model.AgeLimitMax != 0 && Model.AgeLimitMax == ageLimit)
+            {
+                <option value="@ageLimit" selected>@ageLimit+</option>
+            }
+            else
+            {
+                <option value="@ageLimit">@ageLimit+</option>
+            }
+        }
+    </select>
+</div>
+
+<style>
+    #filterInput_AgeLimitMin_box {
+        margin-bottom: 10px;
+    }
+</style>

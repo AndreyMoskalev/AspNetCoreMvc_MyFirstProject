@@ -1,0 +1,104 @@
+﻿@using CinemasOfSity.Models.Account;
+
+@{ 
+    string title = "Город кинотеатров";
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@title</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome-4.7.0/css/font-awesome.css" />
+    <link rel="stylesheet" href="~/css/Layout.css" />
+    <link rel="stylesheet" href="~/css/PageSectionStyle.css" />
+</head>
+<body class="container">
+    <header>
+        @{
+            string updateActionString = Url.Action("Index", $"{ViewBag.ControllerName}");
+            string authorizationAction = Url.Action("Index", updateActionString);
+        }
+        <div class="page-box" id="mainMenu-box">
+            <div id="menu-and-user">
+                <nav id="mainMenu-first" class="menu-box navbar navbar-expand-md navbar-dark">
+                    <h1 id="site-title-first" class="site-title">
+                        @title
+                    </h1>
+                    <div id="mainMenu-list-first">
+                        @await Html.PartialAsync("MainMenuList")
+                    </div>
+                </nav>
+                <div id="user-box">
+                    @if (ViewBag.UserLogin == null)
+                    {
+                        <button id="user-button" class="page-button">
+                            <span class="user-login">Авторизоваться</span>
+                            <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                        </button>
+
+                    }
+                    else
+                    {
+                        <button id="user-button" class="active page-button" data-toggle="collapse" data-target="#userSection-box">
+                            <span class="user-login">@ViewBag.UserLogin</span>
+                            <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                        </button>
+                    }
+
+                    @if (ViewBag.UserLogin != null)
+                    {
+                        <div id="userSection-box" class="collapse">
+                            <div id="userSection" class="page-section">
+                                <p id="userRole">Роль: <span> @ViewBag.UserRole</span></p>
+                                <a id="signOut-button" class="page-button" data-ajax="true" data-ajax-url=@Url.Action("SignOut", "Accaunt") data-ajax-update="#userSection">Выйти</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <nav id="mainMenu-two" class="menu-box navbar navbar-expand-md navbar-dark">
+                <div id="title-and-menuButton">
+                    <h1 id="site-title-two" class="site-title">
+                        @title
+                    </h1>
+                    <button class="mainMenu-button navbar-toggler active" onclick="siteMenuButton_switch()" type="button" id="mainMenu-button" data-toggle="collapse" data-target=".mainMenu">
+                        <i class="fa fa-bars" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="mainMenu collapse navbar-collapse show">
+                    @await Html.PartialAsync("MainMenuList")
+                </div>
+            </nav>
+
+        </div>
+    </header>
+    @await Html.PartialAsync("Account/AuthorizationBox", new Authorization())
+    @await Html.PartialAsync("MessageBox")
+    <main id="main">
+        @RenderBody()
+    </main>
+    <footer>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    @await Html.PartialAsync("ValidationScriptsPartial")
+
+    <script type="text/javascript">
+        const siteMenuButton_switch = () => {
+            let button = document.getElementById('mainMenu-button');
+            button.classList.toggle("active");
+        }
+    </script>
+
+    <script type="text/javascript">
+        const userButton = document.getElementById('user-button');
+        if (!userButton.classList.contains('active')) userButton.addEventListener('click', AuthorizationOpen)
+    </script>
+
+</body>
+</html>

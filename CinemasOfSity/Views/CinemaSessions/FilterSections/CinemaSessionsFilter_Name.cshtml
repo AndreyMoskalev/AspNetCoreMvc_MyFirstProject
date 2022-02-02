@@ -1,0 +1,34 @@
+﻿@using CinemasOfSity.Models.CinemaSessions
+
+@model CinemaSessionsFilter
+
+@{
+    string CinemaNameValue = (Model.CinemaName != null) ? Model.CinemaName : "";
+    string MovieTitleValue = (Model.MovieTitle != null) ? Model.MovieTitle : "";
+}
+<div id="filterInput_MovieTitle_box">
+    <label for="filterInput_MovieTitle">Название фильма</label>
+    <input type="text" name='MovieTitle' id="filterInput_MovieTitle" class='page-input-closed' value='@MovieTitleValue' list="filterInput_MovieTitleList">
+    <datalist id="filterInput_MovieTitleList">
+        @foreach (string movieTitle in ViewBag.MovieTitles)
+        {
+            <option>@movieTitle</option>
+        }
+    </datalist>
+</div>
+<div id="filterInput_CinemaName_box">
+    <label for="filterInput_CinemaName">Название кинотеатра</label>
+    <input type="text" name='CinemaName' id="filterInput_CinemaName" class='page-input-closed' value='@CinemaNameValue' list="filterInput_CinemaNameList">
+    <datalist id="filterInput_CinemaNameList">
+        @foreach (var cinemaName in ViewBag.CinemaNames)
+        {
+            <option>@cinemaName</option>
+        }
+    </datalist>
+</div>
+
+<style>
+    #filterInput_MovieTitle_box {
+        margin-bottom: 10px;
+    }
+</style>

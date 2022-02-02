@@ -1,0 +1,94 @@
+﻿@using CinemasOfSity.Models.Filter;
+
+@model Filter;
+
+<div class="page-box" id="filter-box">
+    <button class="page-button page-section-open-button" data-toggle="collapse" data-target="#filter" aria-controls="filter">
+        <p>@Model.Title</p>
+        <span>
+            <i class="fa fa-sort-desc"></i>
+        </span>
+    </button>
+    <div class="collapse" id="filter">
+
+        @{ 
+            string filtrationSuccessMessage = "Данные успешно отфильтрованы!";
+            string filtrationFailureMessage = "В процессе фильтрации данных произошла ошибка.";
+        }
+
+        <form id="filter-form" data-ajax="true" data-ajax-url="@Model.Action" data-ajax-failure="MessageBoxOpen('@filtrationFailureMessage')" data-ajax-success="MessageBoxOpen('@filtrationSuccessMessage')" data-ajax-update="#@Model.UpdateTagId" data-ajax-mode="replace" class="page-section-transparent">
+            @{
+                int filterRowNumber = 1;
+            }
+            @foreach (FilterRow row in Model.FilterSectionRows)
+            {
+                <div class="page-section-row row">
+                    @{
+                        string bootstrap_col = (row.LeftSection == null || row.RightSection == null) ? "col-md-6 offset-md-3" : "col-md-6";
+                    }
+                    @if (row.LeftSection != null)
+                    {
+                        <div class="filter-item left page-section-item @bootstrap_col">
+                            <button type="button" class="page-button page-section-collapse-open-button" data-toggle="collapse" data-target="#filterRow-@filterRowNumber-leftSection" aria-controls="filterRow-@filterRowNumber-leftSection">
+                                <p>@row.LeftSection.Title</p>
+                                <span>
+                                    <i class="fa fa-sort-desc"></i>
+                                </span>
+                            </button>
+                            <div class="collapse w-100" data-parent="#filter" id="filterRow-@filterRowNumber-leftSection">
+                                <div class="page-section-card">
+                                    @await Html.PartialAsync(row.LeftSection.SectionViewUrl, row.LeftSection.Filter)
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (row.RightSection != null)
+                    {
+                        <div class="filter-item right page-section-item @bootstrap_col">
+                            <button type="button" class="page-button page-section-collapse-open-button" data-toggle="collapse" data-target="#filterRow-@filterRowNumber-rightSection" aria-controls="filterRow-@filterRowNumber-rightSection">
+                                <p>@row.RightSection.Title</p>
+                                <span>
+                                    <i class="fa fa-sort-desc"></i>
+                                </span>
+                            </button>
+                            <div class="collapse w-100" data-parent="#filter" id="filterRow-@filterRowNumber-rightSection">
+                                <div class="page-section-card">
+                                    @await Html.PartialAsync(row.RightSection.SectionViewUrl, row.RightSection.Filter)
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                filterRowNumber++;
+            }
+            <div class="page-section-row row">
+                <div class="col-6 offset-3">
+                    <input type="submit" class="page-button page-submit" value="Применить"/>
+                </div>
+            </div>
+        </form>
+
+        <style>
+
+            #filter-form{
+                padding-bottom: 0;
+            }
+
+            .filter-item.left {
+                padding-left: 0;
+            }
+
+            .filter-item.right {
+                padding-right: 0;
+            }
+
+            @@media(max-width: 767px) {
+                .filter-item {
+                    padding: 0 !important;
+                }
+            }
+
+        </style>
+
+    </div>
+</div>

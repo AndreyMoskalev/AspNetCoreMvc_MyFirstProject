@@ -1,0 +1,16 @@
+﻿@model CinemasOfSity.Models.Account.Authorization;
+
+<form id="authorization" action="@Url.Action("Authorization", "Account")" data-ajax="true" data-ajax-update="#authorization-box">
+    <button type="button" id="authorization-close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    <h3 id="authorization-title">Авторизация</h3>
+    <div class="validation" asp-validation-summary="All"></div>
+    <label asp-for="Login">Логин</label>
+    <input type="text" asp-for="Login" class="page-input-closed authorization-input" />
+    <label asp-for="Password">Пароль</label>
+    <input type="password" asp-for="Password" class="page-input-closed authorization-input" />
+    <input type="submit" id="authorization-submit" class="page-button page-submit" value="Войти" />
+</form>
+
+<script type="text/javascript">
+    document.getElementById('authorization-close').addEventListener('click', AuthorizationClose);
+</script>

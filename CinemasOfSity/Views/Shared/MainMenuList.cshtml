@@ -1,0 +1,45 @@
+﻿@using CinemasOfSity.Models.Layout;
+
+<ul class="mainMenu-list navbar-nav">
+    @{
+        List<MenuLink> menuLinks = new List<MenuLink>()
+                                                                                                                                                                                                                                                                                                {
+            new MenuLink()
+            {
+                Title = "Сеансы",
+                Action = Url.Action("Index", "CinemaSessions"),
+                ControllerName ="CinemaSessions"
+            },
+            new MenuLink()
+            {
+                Title = "Фильмы",
+                Action = Url.Action("Index", "Movies"),
+                ControllerName ="Movies"
+            },
+            new MenuLink()
+            {
+                Title = "Кинотеатры",
+                Action = Url.Action("Index", "Cinemas"),
+                ControllerName ="Cinemas"
+            }
+        };
+
+        if (ViewBag.UserRole == "Администратор")
+        {
+            menuLinks.Add(new MenuLink()
+            {
+                Title="Пользователи",
+                Action = Url.Action("Index", "Users"),
+                ControllerName = "Users"
+            });
+        }
+    }
+
+    @foreach (MenuLink link in menuLinks)
+    {
+        string addActive = (link.ControllerName == ViewBag.ControllerName) ? "active" : "";
+        <li class="mainMenu-item @addActive">
+            <a class="nav-link mainMenu-link" href="@link.Action">@link.Title</a>
+        </li>
+    }
+</ul>

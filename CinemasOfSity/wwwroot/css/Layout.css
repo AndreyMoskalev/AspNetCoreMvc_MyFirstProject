@@ -1,0 +1,259 @@
+﻿*:not(div) {
+    padding: 0;
+    margin: 0;
+}
+
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body {
+    min-width: 395px;
+    max-width: 1100px;
+}
+
+p {
+    text-align: center;
+}
+
+.menu-box {
+    color: white;
+    background-color: #6c757d;
+    border-radius: 5px;
+    width: 100%;
+    padding: 10px !important;
+    display: flex;
+    justify-content: space-between;
+}
+
+.mainMenu {
+    color: white;
+    background-color: #6c757d;
+    border-radius: 5px;
+    margin-top: 1px;
+}
+
+.site-title {
+    font-size: 20px;
+    font-weight: 500;
+    font-style: italic;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+#site-title-two {
+    display: none;
+}
+
+.mainMenu-list {
+    width: 100%;
+    display: flex;
+    justify-content: right;
+}
+
+.mainMenu-item {
+    user-select: none;
+    cursor: pointer;
+}
+
+.mainMenu-link {
+    color: white;
+    font-weight: 500;
+    font-size: 16px;
+    text-transform: uppercase;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+}
+
+.mainMenu-button {
+    outline: none !important;
+    font-size: 23px;
+    border-width: 2px;
+}
+
+.mainMenu-button:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.mainMenu-button.active {
+    color: white;
+    border-color: white;
+}
+
+#user-button {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between !important;
+    align-items: center;
+    border-radius: 5px;
+    align-self: center;
+}
+
+#user-button.active > * {
+    color: gold;
+}
+
+#user-button > i {
+    font-size: 32px;
+}
+
+.user-login {
+    font-size: 16px;
+    font-weight: 500;
+    text-transform: uppercase;
+    width: 100%;
+    text-align: center;
+}
+
+#menu-and-user {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+#user-box{
+    position: relative;
+    min-width: 250px;
+    margin-left: 10px;
+}
+
+#user-button {
+    display: flex !important;
+    margin-bottom: 0;
+}
+
+#signOut-button {
+    margin-top: 15px;
+    max-width: 200px;
+    border-radius: 5px;
+}
+
+#userSection-box {
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+}
+
+#userSection {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #8d969e;
+    margin-top: 5px !important;
+}
+
+#mainMenu-two {
+    margin-top: 10px;
+    display: none;
+}
+
+#userRole{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+#userRole > span {
+    margin-left: 10px;
+    font-weight: 700 !important;
+    color: maroon;
+}
+
+@media (max-width: 991px) {
+    #mainMenu-two {
+        display: block !important;
+    }
+
+    #mainMenu-list-first {
+        display: none !important;
+    }
+
+    .mainMenu-list{
+        justify-content: center;
+    }
+
+    .site-title {
+        width: 100%;
+        text-align: center;
+        padding-right: 1%;
+        padding-left: 1%;
+    }
+}
+
+@media (max-width: 767px) {
+
+    .mainMenu-link {
+        padding: 1% !important;
+    }
+
+    .mainMenu-list {
+        margin-top: 10px;
+    }
+    .mainMenu-item {
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        margin-top: 10px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    .mainMenu-item:hover {
+        border-color: rgba(255, 255, 255, 0.6) !important;
+    }
+    .mainMenu-item.active {
+        border-color: white !important;
+    }
+
+    #mainMenu-first {
+        display: none;
+    }
+    #user-button {
+        margin: 0 !important;
+    }
+
+    #site-title-two {
+        display: flex !important;
+        align-items: center;
+        justify-content: left !important;
+    }
+
+    #title-and-menuButton {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    #userSection-box{
+        position: relative !important;
+    }
+
+    #user-button{
+        height: auto !important;
+    }
+
+    #user-box {
+        width: 100%;
+        margin: 0;
+    }
+}
+
+@media(max-width: 767px) and (min-width: 500px)
+{
+    #userSection {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    #signOut-button {
+        margin-top: 0 !important;
+        margin-left: 5px;
+    }
+}
