@@ -3,6 +3,10 @@ using CinemasOfSity.Models.Movies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CinemasOfSity.Controllers
 {
@@ -32,57 +36,51 @@ namespace CinemasOfSity.Controllers
 
         async Task LoadPageData()
         {
-            await Task.Run(() =>
+            ViewBag.ControllerName = "Movies";
+            ViewBag.SortingCriteria = GetSortingCriteria();
+            ViewBag.MovieTitles = await dataContext.Movies.Select(x => x.Title).Distinct().ToListAsync();
+            ViewBag.MovieGenres = await dataContext.MovieGenres.Select(x => x.Name).ToListAsync();
+            ViewBag.MovieCountries = await dataContext.MovieCountries.Select(x => x.Name).ToListAsync();
+            ViewBag.MovieFormats = await dataContext.Movies.Select(x => x.Format).Distinct().ToListAsync();
+            ViewBag.MovieDirectors = await dataContext.Movies.Select(x => x.Director).Distinct().ToListAsync();
+            ViewBag.AgeLimits = GetAgeLimits();
+            if (User.Identity.Name != null)
             {
-                ViewBag.ControllerName = "Movies";
-                ViewBag.SortingCriteria = GetSortingCriteria();
-                ViewBag.MovieTitles = dataContext.Movies.Select(x => x.Title).Distinct().ToList();
-                ViewBag.MovieGenres = dataContext.MovieGenres.Select(x => x.Name).ToList();
-                ViewBag.MovieCountries = dataContext.MovieCountries.Select(x => x.Name).ToList();
-                ViewBag.MovieFormats = dataContext.Movies.Select(x => x.Format).Distinct().ToList();
-                ViewBag.MovieDirectors = dataContext.Movies.Select(x => x.Director).Distinct().ToList();
-                ViewBag.AgeLimits = GetAgeLimits();
-                if (User.Identity.Name != null)
-                {
-                    Models.Account.User user = dataContext.Users.Include(x => x.Role).Where(x => x.Login == User.Identity.Name).First();
-                    ViewBag.UserRole = user.Role.Name;
-                    ViewBag.UserLogin = user.Login;
-                }
-            });
+                Models.Account.User user = await dataContext.Users.Include(x => x.Role).Where(x => x.Login == User.Identity.Name).FirstAsync();
+                ViewBag.UserRole = user.Role.Name;
+                ViewBag.UserLogin = user.Login;
+            }
         }
 
         public async Task<IActionResult> Index(bool partialView = false, MoviesFilter filter = null)
         {
             MoviesView viewModel = new MoviesView();
             List<Movie> listItems = await dataContext.Movies.Include(x => x.Genre). Include(x => x.Country).ToListAsync();
-            await Task.Run(() =>
+            listItems.Reverse();
+            if (filter != null)
             {
-                listItems.Reverse();
-                if (filter != null)
-                {
-                    viewModel.Filter = filter;
-                    listItems = Filtration(listItems, viewModel.Filter);
-                }
-                else if (HttpContext.Session.Get<MoviesFilter>("MoviesFilter") != null)
-                {
-                    viewModel.Filter = HttpContext.Session.Get<MoviesFilter>("MoviesFilter");
-                    listItems = Filtration(listItems, viewModel.Filter);
-                }
-                else viewModel.Filter = new MoviesFilter();
-                viewModel.DataList = GetDataList(listItems, 1);
-                viewModel.AddNewItem = new Models.AddNewItem.AddNewItem()
-                {
-                    Title = "Добавить фильм",
-                    Action = Url.Action("Add", "Movies"),
-                    UpdateTagId = "updatedSectionsPage",
-                    AccessRoles = new List<string>()
+                viewModel.Filter = filter;
+                listItems = Filtration(listItems, viewModel.Filter);
+            }
+            else if (HttpContext.Session.Get<MoviesFilter>("MoviesFilter") != null)
+            {
+                viewModel.Filter = HttpContext.Session.Get<MoviesFilter>("MoviesFilter");
+                listItems = Filtration(listItems, viewModel.Filter);
+            }
+            else viewModel.Filter = new MoviesFilter();
+            viewModel.DataList = GetDataList(listItems, 1);
+            viewModel.AddNewItem = new Models.AddNewItem.AddNewItem()
+            {
+                Title = "Добавить фильм",
+                Action = Url.Action("Add", "Movies"),
+                UpdateTagId = "updatedSectionsPage",
+                AccessRoles = new List<string>()
                     {
                         "Администратор",
                         "Оператор"
                     }
-                };
-                ModelState.Clear();
-            });
+            };
+            ModelState.Clear();
             await LoadPageData();
             if (partialView) return PartialView(viewModel);
             else return View(viewModel);
@@ -92,48 +90,37 @@ namespace CinemasOfSity.Controllers
         {
             UpdatedSectionsPage viewModel = new UpdatedSectionsPage();
             List<Movie> listItems = await dataContext.Movies.Include(x => x.Genre).Include(x => x.Country).ToListAsync();
-            await Task.Run(() =>
+            listItems.Reverse();
+            if (HttpContext.Session.Get<MoviesFilter>("MoviesFilter") != null)
             {
-                listItems.Reverse();
-                if (HttpContext.Session.Get<MoviesFilter>("MoviesFilter") != null)
-                {
-                    viewModel.Filter = HttpContext.Session.Get<MoviesFilter>("MoviesFilter");
-                    listItems = Filtration(listItems, viewModel.Filter);
-                }
-                else viewModel.Filter = new MoviesFilter();
-                viewModel.DataList = GetDataList(listItems, page);
-            });
+                viewModel.Filter = HttpContext.Session.Get<MoviesFilter>("MoviesFilter");
+                listItems = Filtration(listItems, viewModel.Filter);
+            }
+            else viewModel.Filter = new MoviesFilter();
+            viewModel.DataList = GetDataList(listItems, page);
             await LoadPageData();
             return PartialView("UpdatedSectionsPage", viewModel);
         }
 
         public async Task<IActionResult> NewPage(int page = 1)
         {
-            MoviesDataList dataList = new MoviesDataList();
             List<Movie> listItems = await dataContext.Movies.Include(x => x.Genre).Include(x => x.Country).ToListAsync();
-            await Task.Run(() =>
+            listItems.Reverse();
+            if (HttpContext.Session.Get<MoviesFilter>("MoviesFilter") != null)
             {
-                listItems.Reverse();
-                if (HttpContext.Session.Get<MoviesFilter>("MoviesFilter") != null)
-                {
-                    listItems = Filtration(listItems, HttpContext.Session.Get<MoviesFilter>("MoviesFilter"));
-                }
-                dataList = GetDataList(listItems, page);
-            });
+                listItems = Filtration(listItems, HttpContext.Session.Get<MoviesFilter>("MoviesFilter"));
+            }
+            MoviesDataList dataList = GetDataList(listItems, page);
             await LoadPageData();
             return PartialView("MoviesDataList", dataList);
         }
 
         public async Task<IActionResult> Filter(MoviesFilter filter)
         {
-            MoviesDataList dataList = new MoviesDataList();
             List<Movie> listItems = await dataContext.Movies.Include(x => x.Genre).Include(x => x.Country).ToListAsync();
-            await Task.Run(() =>
-            {
-                listItems.Reverse();
-                listItems = Filtration(listItems, filter);
-                dataList = GetDataList(listItems, 1);
-            });
+            listItems.Reverse();
+            listItems = Filtration(listItems, filter);
+            MoviesDataList dataList = GetDataList(listItems, 1);
             await LoadPageData();
             return PartialView("MoviesDataList", dataList);
         }
@@ -144,59 +131,56 @@ namespace CinemasOfSity.Controllers
             if (ModelState.IsValid && await CheckErrors(addItem))
             {
                 Movie item = new Movie();
-                await Task.Run(() =>
+                item.Genre = new List<MovieGenre>();
+                List<string> genres = addItem.Genres.Split(',').ToList();
+                foreach (string genre in genres)
                 {
-                    item.Genre = new List<MovieGenre>();
-                    List<string> genres = addItem.Genres.Split(',').ToList();
-                    foreach (string genre in genres)
+                    string genreName = genre.Trim();
+                    MovieGenre movieGenre;
+                    if (!await dataContext.MovieGenres.AnyAsync(x => x.Name.ToLower() == genreName.ToLower()))
                     {
-                        string genreName = genre.Trim();
-                        MovieGenre movieGenre;
-                        if (!dataContext.MovieGenres.Any(x => x.Name.ToLower() == genreName.ToLower()))
+                        movieGenre = new MovieGenre()
                         {
-                            movieGenre = new MovieGenre()
-                            {
-                                Name = genreName
-                            };
-                            dataContext.MovieGenres.Add(movieGenre);
-                        }
-                        else movieGenre = dataContext.MovieGenres.First(x => x.Name.ToLower() == genreName.ToLower());
-                        item.Genre.Add(movieGenre);
+                            Name = genreName
+                        };
+                        await dataContext.MovieGenres.AddAsync(movieGenre);
                     }
-                    item.Country = new List<MovieCountry>();
-                    List<string> countries = addItem.Countries.Split(',').ToList();
-                    foreach (string country in countries)
+                    else movieGenre = await dataContext.MovieGenres.FirstAsync(x => x.Name.ToLower() == genreName.ToLower());
+                    item.Genre.Add(movieGenre);
+                }
+                item.Country = new List<MovieCountry>();
+                List<string> countries = addItem.Countries.Split(',').ToList();
+                foreach (string country in countries)
+                {
+                    string countryName = country.Trim();
+                    MovieCountry movieCountry;
+                    if (!await dataContext.MovieCountries.AnyAsync(x => x.Name.ToLower() == countryName.ToLower()))
                     {
-                        string countryName = country.Trim();
-                        MovieCountry movieCountry;
-                        if (!dataContext.MovieCountries.Any(x => x.Name.ToLower() == countryName.ToLower()))
+                        movieCountry = new MovieCountry()
                         {
-                            movieCountry = new MovieCountry()
-                            {
-                                Name = countryName
-                            };
-                            dataContext.MovieCountries.Add(movieCountry);
-                        }
-                        else movieCountry = dataContext.MovieCountries.First(x => x.Name.ToLower() == countryName.ToLower());
-                        item.Country.Add(movieCountry);
+                            Name = countryName
+                        };
+                        await dataContext.MovieCountries.AddAsync(movieCountry);
                     }
-                    if (addItem.Duration != null) item.Duration = TimeSpan.Parse(addItem.Duration);
-                    var itemProperties = item.GetType().GetProperties();
-                    var itemUpdateProperties = addItem.GetType().GetProperties();
-                    foreach (var itemUpdateProperty in itemUpdateProperties)
+                    else movieCountry = await dataContext.MovieCountries.FirstAsync(x => x.Name.ToLower() == countryName.ToLower());
+                    item.Country.Add(movieCountry);
+                }
+                if (addItem.Duration != null) item.Duration = TimeSpan.Parse(addItem.Duration);
+                var itemProperties = item.GetType().GetProperties();
+                var itemUpdateProperties = addItem.GetType().GetProperties();
+                foreach (var itemUpdateProperty in itemUpdateProperties)
+                {
+                    if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
                     {
-                        if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
+                        var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
+                        if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
                         {
-                            var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
-                            if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
-                            {
-                                itemProperty.SetValue(item, itemUpdateProperty.GetValue(addItem));
-                            }
+                            itemProperty.SetValue(item, itemUpdateProperty.GetValue(addItem));
                         }
                     }
-                    dataContext.Movies.Add(item);
-                    dataContext.SaveChanges();
-                });
+                }
+                await dataContext.Movies.AddAsync(item);
+                await dataContext.SaveChangesAsync();
             }
             else LoadErrors();
             return await UpdatePage(1);
@@ -227,70 +211,66 @@ namespace CinemasOfSity.Controllers
             if (ModelState.IsValid && await CheckErrors(updateItem))
             {
                 Movie item = await dataContext.Movies.Where(x => x.Id == updateItem.Id).Include(x => x.Genre).Include(x => x.Country).FirstAsync();
-                await Task.Run(() =>
+                if (updateItem.Duration != null) item.Duration = TimeSpan.Parse(updateItem.Duration);
+                else item.Duration = new TimeSpan();
+                List<string> genres = updateItem.Genres.Split(',').ToList();
+                List<MovieGenre> oldGenres = item.Genre;
+                item.Genre.Clear();
+                foreach (string genre in genres)
                 {
-                    if (updateItem.Duration != null) item.Duration = TimeSpan.Parse(updateItem.Duration);
-                    else item.Duration = new TimeSpan();
-                    List<string> genres = updateItem.Genres.Split(',').ToList();
-                    List<MovieGenre> oldGenres = item.Genre;
-                    item.Genre.Clear();
-                    foreach (string genre in genres)
+                    string genreName = genre.Trim();
+                    MovieGenre movieGenre;
+                    if (!await dataContext.MovieGenres.AnyAsync(x => x.Name.ToLower() == genreName.ToLower()))
                     {
-                        string genreName = genre.Trim();
-                        MovieGenre movieGenre;
-                        if (!dataContext.MovieGenres.Any(x => x.Name.ToLower() == genreName.ToLower()))
+                        movieGenre = new MovieGenre()
                         {
-                            movieGenre = new MovieGenre()
-                            {
-                                Name = genreName
-                            };
-                            dataContext.MovieGenres.Add(movieGenre);
-                        }
-                        else movieGenre = dataContext.MovieGenres.First(x => x.Name.ToLower() == genreName.ToLower());
-                        item.Genre.Add(movieGenre);
+                            Name = genreName
+                        };
+                        await dataContext.MovieGenres.AddAsync(movieGenre);
                     }
-                    List<string> countries = (updateItem.Countries != null)? updateItem.Countries.Split(',').ToList() : new List<string>();
-                    List<MovieCountry> oldCountries = item.Country;
-                    item.Country.Clear();
-                    foreach (string country in countries)
+                    else movieGenre = await dataContext.MovieGenres.FirstAsync(x => x.Name.ToLower() == genreName.ToLower());
+                    item.Genre.Add(movieGenre);
+                }
+                List<string> countries = (updateItem.Countries != null) ? updateItem.Countries.Split(',').ToList() : new List<string>();
+                List<MovieCountry> oldCountries = item.Country;
+                item.Country.Clear();
+                foreach (string country in countries)
+                {
+                    string countryName = country.Trim();
+                    MovieCountry movieCountry;
+                    if (!await dataContext.MovieCountries.AnyAsync(x => x.Name.ToLower() == countryName.ToLower()))
                     {
-                        string countryName = country.Trim();
-                        MovieCountry movieCountry;
-                        if (!dataContext.MovieCountries.Any(x => x.Name.ToLower() == countryName.ToLower()))
+                        movieCountry = new MovieCountry()
                         {
-                            movieCountry = new MovieCountry()
-                            {
-                                Name = countryName
-                            };
-                            dataContext.MovieCountries.Add(movieCountry);
-                        }
-                        else movieCountry = dataContext.MovieCountries.First(x => x.Name.ToLower() == countryName.ToLower());
-                        item.Country.Add(movieCountry);
+                            Name = countryName
+                        };
+                        await dataContext.MovieCountries.AddAsync(movieCountry);
                     }
-                    var itemProperties = item.GetType().GetProperties();
-                    var itemUpdateProperties = updateItem.GetType().GetProperties();
-                    foreach (var itemUpdateProperty in itemUpdateProperties)
+                    else movieCountry = await dataContext.MovieCountries.FirstAsync(x => x.Name.ToLower() == countryName.ToLower());
+                    item.Country.Add(movieCountry);
+                }
+                var itemProperties = item.GetType().GetProperties();
+                var itemUpdateProperties = updateItem.GetType().GetProperties();
+                foreach (var itemUpdateProperty in itemUpdateProperties)
+                {
+                    if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
                     {
-                        if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
+                        var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
+                        if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
                         {
-                            var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
-                            if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
-                            {
-                                itemProperty.SetValue(item, itemUpdateProperty.GetValue(updateItem));
-                            }
+                            itemProperty.SetValue(item, itemUpdateProperty.GetValue(updateItem));
                         }
                     }
-                    dataContext.SaveChanges();
-                    foreach (MovieGenre oldGenre in oldGenres)
-                    {
-                        if (oldGenre.Movie.Count == 0) dataContext.MovieGenres.Remove(oldGenre);
-                    }
-                    foreach (MovieCountry oldCountry in oldCountries)
-                    {
-                        if (oldCountry.Movie.Count == 0) dataContext.MovieCountries.Remove(oldCountry);
-                    }
-                    dataContext.SaveChanges();
-                });
+                }
+                foreach (MovieGenre oldGenre in oldGenres)
+                {
+                    if (oldGenre.Movie.Count == 0) dataContext.MovieGenres.Remove(oldGenre);
+                }
+                foreach (MovieCountry oldCountry in oldCountries)
+                {
+                    if (oldCountry.Movie.Count == 0) dataContext.MovieCountries.Remove(oldCountry);
+                }
+                await dataContext.SaveChangesAsync();
             }
             else LoadErrors();
             return await UpdatePage(page);
@@ -326,23 +306,20 @@ namespace CinemasOfSity.Controllers
             {
                 Movie item = await dataContext.Movies.Where(x => x.Id == id).Include(x => x.Genre).ThenInclude(x => x.Movie).Include(x => x.Country).ThenInclude(x => x.Movie).FirstAsync();
                 List<Models.CinemaSessions.CinemaSession> sessions = await dataContext.CinemaSessions.Where(x => x.Movie.Id == item.Id).ToListAsync();
-                await Task.Run(() =>
+                List<MovieGenre> oldGenres = item.Genre;
+                List<MovieCountry> oldCountries = item.Country;
+                foreach (Models.CinemaSessions.CinemaSession session in sessions) dataContext.CinemaSessions.Remove(session);
+                dataContext.Movies.Remove(item);
+                await dataContext.SaveChangesAsync();
+                foreach (MovieGenre oldGenre in oldGenres)
                 {
-                    List<MovieGenre> oldGenres = item.Genre;
-                    List<MovieCountry> oldCountries = item.Country;
-                    foreach (Models.CinemaSessions.CinemaSession session in sessions) dataContext.CinemaSessions.Remove(session);
-                    dataContext.Movies.Remove(item);
-                    dataContext.SaveChanges();
-                    foreach (MovieGenre oldGenre in oldGenres)
-                    {
-                        if (oldGenre.Movie.Count == 0) dataContext.MovieGenres.Remove(oldGenre);
-                    }
-                    foreach (MovieCountry oldCountry in oldCountries)
-                    {
-                        if (oldCountry.Movie.Count == 0) dataContext.MovieCountries.Remove(oldCountry);
-                    }
-                    dataContext.SaveChanges();
-                });
+                    if (oldGenre.Movie.Count == 0) dataContext.MovieGenres.Remove(oldGenre);
+                }
+                foreach (MovieCountry oldCountry in oldCountries)
+                {
+                    if (oldCountry.Movie.Count == 0) dataContext.MovieCountries.Remove(oldCountry);
+                }
+                await dataContext.SaveChangesAsync();
             }
             else LoadErrors();
             return await UpdatePage(page);

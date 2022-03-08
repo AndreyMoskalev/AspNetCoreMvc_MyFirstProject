@@ -2,6 +2,9 @@
 using CinemasOfSity.Models.Movies;
 using CinemasOfSity.Models.Cinemas;
 using CinemasOfSity.Models.CinemaSessions;
+using System.Collections.Generic;
+using System;
+using System.Linq;
 
 namespace CinemasOfSity
 {

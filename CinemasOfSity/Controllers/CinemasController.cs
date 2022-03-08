@@ -3,6 +3,10 @@ using CinemasOfSity.Models.Cinemas;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
 namespace CinemasOfSity.Controllers
 {
@@ -18,18 +22,15 @@ namespace CinemasOfSity.Controllers
 
         async Task LoadPageData()
         {
-            await Task.Run(() =>
+            ViewBag.ControllerName = "Cinemas";
+            ViewBag.SortingCriteria = GetSortingCriteria();
+            ViewBag.CinemaNames = await dataContext.Cinemas.Select(x => x.Name).Distinct().ToListAsync();
+            if (User.Identity.Name != null)
             {
-                ViewBag.ControllerName = "Cinemas";
-                ViewBag.SortingCriteria = GetSortingCriteria();
-                ViewBag.CinemaNames = dataContext.Cinemas.Select(x => x.Name).Distinct().ToList();
-                if (User.Identity.Name != null)
-                {
-                    Models.Account.User user = dataContext.Users.Include(x => x.Role).Where(x => x.Login == User.Identity.Name).First();
-                    ViewBag.UserRole = user.Role.Name;
-                    ViewBag.UserLogin = user.Login;
-                }
-            });
+                Models.Account.User user = await dataContext.Users.Include(x => x.Role).Where(x => x.Login == User.Identity.Name).FirstAsync();
+                ViewBag.UserRole = user.Role.Name;
+                ViewBag.UserLogin = user.Login;
+            }
         }
 
         IDictionary<string, string> GetSortingCriteria()
@@ -45,34 +46,31 @@ namespace CinemasOfSity.Controllers
         {
             CinemasView viewModel = new CinemasView();
             List<Cinema> listItems = await dataContext.Cinemas.ToListAsync();
-            await Task.Run(() =>
+            listItems.Reverse();
+            if (filter != null)
             {
-                listItems.Reverse();
-                if (filter != null)
-                {
-                    viewModel.Filter = filter;
-                    listItems = Filtration(listItems, viewModel.Filter);
-                }
-                else if (HttpContext.Session.Get<CinemasFilter>("CinemasFilter") != null)
-                {
-                    viewModel.Filter = HttpContext.Session.Get<CinemasFilter>("CinemasFilter");
-                    listItems = Filtration(listItems, viewModel.Filter);
-                }
-                else viewModel.Filter = new CinemasFilter();
-                viewModel.DataList = GetDataList(listItems, 1);
-                viewModel.AddNewItem = new Models.AddNewItem.AddNewItem()
-                {
-                    Title = "Добавить кинотеатр",
-                    Action = Url.Action("Add", "Cinemas"),
-                    UpdateTagId = "updatedSectionsPage",
-                    AccessRoles = new List<string>()
+                viewModel.Filter = filter;
+                listItems = Filtration(listItems, viewModel.Filter);
+            }
+            else if (HttpContext.Session.Get<CinemasFilter>("CinemasFilter") != null)
+            {
+                viewModel.Filter = HttpContext.Session.Get<CinemasFilter>("CinemasFilter");
+                listItems = Filtration(listItems, viewModel.Filter);
+            }
+            else viewModel.Filter = new CinemasFilter();
+            viewModel.DataList = GetDataList(listItems, 1);
+            viewModel.AddNewItem = new Models.AddNewItem.AddNewItem()
+            {
+                Title = "Добавить кинотеатр",
+                Action = Url.Action("Add", "Cinemas"),
+                UpdateTagId = "updatedSectionsPage",
+                AccessRoles = new List<string>()
                     {
                         "Администратор",
                         "Оператор"
                     }
-                };
-                ModelState.Clear();
-            });
+            };
+            ModelState.Clear();
             await LoadPageData();
             if (partialView) return PartialView(viewModel);
             else return View(viewModel);
@@ -82,34 +80,27 @@ namespace CinemasOfSity.Controllers
         {
             UpdatedSectionsPage viewModel = new UpdatedSectionsPage();
             List<Cinema> listItems = await dataContext.Cinemas.ToListAsync();
-            await Task.Run(() =>
+            listItems.Reverse();
+            if (HttpContext.Session.Get<CinemasFilter>("CinemasFilter") != null)
             {
-                listItems.Reverse();
-                if (HttpContext.Session.Get<CinemasFilter>("CinemasFilter") != null)
-                {
-                    viewModel.Filter = HttpContext.Session.Get<CinemasFilter>("CinemasFilter");
-                    listItems = Filtration(listItems, viewModel.Filter);
-                }
-                else viewModel.Filter = new CinemasFilter();
-                viewModel.DataList = GetDataList(listItems, page);
-            });
+                viewModel.Filter = HttpContext.Session.Get<CinemasFilter>("CinemasFilter");
+                listItems = Filtration(listItems, viewModel.Filter);
+            }
+            else viewModel.Filter = new CinemasFilter();
+            viewModel.DataList = GetDataList(listItems, page);
             await LoadPageData();
             return PartialView("UpdatedSectionsPage", viewModel);
         }
 
         public async Task<IActionResult> NewPage(int page = 1)
         {
-            CinemasDataList dataList = new CinemasDataList();
             List<Cinema> listItems = await dataContext.Cinemas.ToListAsync();
-            await Task.Run(() =>
+            listItems.Reverse();
+            if (HttpContext.Session.Get<CinemasFilter>("CinemasFilter") != null)
             {
-                listItems.Reverse();
-                if (HttpContext.Session.Get<CinemasFilter>("CinemasFilter") != null)
-                {
-                    listItems = Filtration(listItems, HttpContext.Session.Get<CinemasFilter>("CinemasFilter"));
-                }
-                dataList = GetDataList(listItems, page);
-            });
+                listItems = Filtration(listItems, HttpContext.Session.Get<CinemasFilter>("CinemasFilter"));
+            }
+            CinemasDataList dataList = GetDataList(listItems, page);
             await LoadPageData();
             return PartialView("CinemasDataList", dataList);
         }
@@ -118,12 +109,9 @@ namespace CinemasOfSity.Controllers
         {
             CinemasDataList dataList = new CinemasDataList();
             List<Cinema> listItems = await dataContext.Cinemas.ToListAsync();
-            await Task.Run(() =>
-            {
-                listItems.Reverse();
-                listItems = Filtration(listItems, filter);
-                dataList = GetDataList(listItems, 1);
-            });
+            listItems.Reverse();
+            listItems = Filtration(listItems, filter);
+            dataList = GetDataList(listItems, 1);
             await LoadPageData();
             return PartialView("CinemasDataList", dataList);
         }
@@ -134,24 +122,21 @@ namespace CinemasOfSity.Controllers
             if (ModelState.IsValid && await CheckErrors(addItem))
             {
                 Cinema item = new Cinema();
-                await Task.Run(() =>
+                var itemProperties = item.GetType().GetProperties();
+                var itemUpdateProperties = addItem.GetType().GetProperties();
+                foreach (var itemUpdateProperty in itemUpdateProperties)
                 {
-                    var itemProperties = item.GetType().GetProperties();
-                    var itemUpdateProperties = addItem.GetType().GetProperties();
-                    foreach (var itemUpdateProperty in itemUpdateProperties)
+                    if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
                     {
-                        if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
+                        var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
+                        if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
                         {
-                            var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
-                            if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
-                            {
-                                itemProperty.SetValue(item, itemUpdateProperty.GetValue(addItem));
-                            }
+                            itemProperty.SetValue(item, itemUpdateProperty.GetValue(addItem));
                         }
                     }
-                    dataContext.Cinemas.Add(item);
-                    dataContext.SaveChanges();
-                });
+                }
+                await dataContext.Cinemas.AddAsync(item);
+                await dataContext.SaveChangesAsync();
             }
             else LoadErrors();
             return await UpdatePage(1);
@@ -181,23 +166,20 @@ namespace CinemasOfSity.Controllers
             if (ModelState.IsValid && await CheckErrors(updateItem))
             {
                 Cinema item = await dataContext.Cinemas.Where(x => x.Id == updateItem.Id).FirstAsync();
-                await Task.Run(() =>
+                var itemProperties = item.GetType().GetProperties();
+                var itemUpdateProperties = updateItem.GetType().GetProperties();
+                foreach (var itemUpdateProperty in itemUpdateProperties)
                 {
-                    var itemProperties = item.GetType().GetProperties();
-                    var itemUpdateProperties = updateItem.GetType().GetProperties();
-                    foreach (var itemUpdateProperty in itemUpdateProperties)
+                    if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
                     {
-                        if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
+                        var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
+                        if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
                         {
-                            var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
-                            if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
-                            {
-                                itemProperty.SetValue(item, itemUpdateProperty.GetValue(updateItem));
-                            }
+                            itemProperty.SetValue(item, itemUpdateProperty.GetValue(updateItem));
                         }
                     }
-                    dataContext.SaveChanges();
-                });
+                }
+                await dataContext.SaveChangesAsync();
             }
             else LoadErrors();
             return await UpdatePage(page);
@@ -211,7 +193,7 @@ namespace CinemasOfSity.Controllers
                 }
                 if (await dataContext.Cinemas.AnyAsync(x => x.Name.ToLower() == updateItem.Name.ToLower() && x.Id != updateItem.Id))
                 {
-                    errorList.Add("Ошибка. Названеи кинотеатра. Кинотеатр с таким названием уже есть в базе.");
+                    errorList.Add("Ошибка. Название кинотеатра. Кинотеатр с таким названием уже есть в базе.");
                 }
                 if (errorList.Count > 0)
                 {
@@ -232,12 +214,9 @@ namespace CinemasOfSity.Controllers
             {
                 Cinema item = await dataContext.Cinemas.Where(x => x.Id == id).FirstAsync();
                 List<Models.CinemaSessions.CinemaSession> sessions = await dataContext.CinemaSessions.Where(x => x.Cinema.Id == item.Id).ToListAsync();
-                await Task.Run(() =>
-                {
-                    foreach (Models.CinemaSessions.CinemaSession session in sessions) dataContext.CinemaSessions.Remove(session);
-                    dataContext.Cinemas.Remove(item);
-                    dataContext.SaveChanges();
-                });
+                foreach (Models.CinemaSessions.CinemaSession session in sessions) dataContext.CinemaSessions.Remove(session);
+                dataContext.Cinemas.Remove(item);
+                await dataContext.SaveChangesAsync();
             }
             else LoadErrors();
             return await UpdatePage(page);

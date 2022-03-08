@@ -1,4 +1,6 @@
-﻿namespace CinemasOfSity.Models.Account
+﻿using System.Collections.Generic;
+
+namespace CinemasOfSity.Models.Account
 {
     public class Role
     {

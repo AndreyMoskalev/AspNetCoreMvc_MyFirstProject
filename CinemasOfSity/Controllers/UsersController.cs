@@ -4,6 +4,10 @@ using CinemasOfSity.Models.Account;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Collections.Generic;
+using System;
 
 namespace CinemasOfSity.Controllers
 {
@@ -20,46 +24,40 @@ namespace CinemasOfSity.Controllers
 
         async Task LoadPageData()
         {
-            await Task.Run(() =>
+            ViewBag.ControllerName = "Users";
+            ViewBag.Roles = await dataContext.Roles.Where(x => x.Name != "Администратор").Select(x => x.Name).ToListAsync();
+            ViewBag.UsersFIO = await dataContext.Users.Select(x => x.FIO).ToListAsync();
+            ViewBag.UserLogins = await dataContext.Users.Select(x => x.Login).ToListAsync();
+            if (User.Identity.Name != null)
             {
-                ViewBag.ControllerName = "Users";
-                ViewBag.Roles = dataContext.Roles.Where(x => x.Name != "Администратор").Select(x => x.Name).ToList();
-                ViewBag.UsersFIO = dataContext.Users.Select(x => x.FIO).ToList();
-                ViewBag.UserLogins = dataContext.Users.Select(x => x.Login).ToList();
-                if (User.Identity.Name != null)
-                {
-                    User user = dataContext.Users.Include(x => x.Role).Where(x => x.Login == User.Identity.Name).First();
-                    ViewBag.UserRole = user.Role.Name;
-                    ViewBag.UserLogin = user.Login;
-                }
-            });
+                User user = await dataContext.Users.Include(x => x.Role).Where(x => x.Login == User.Identity.Name).FirstAsync();
+                ViewBag.UserRole = user.Role.Name;
+                ViewBag.UserLogin = user.Login;
+            }
         }
 
         public async Task<IActionResult> Index(bool partialView = false)
         {
             UsersView viewModel = new UsersView();
             List<User> listItems = await dataContext.Users.Include(x => x.Role).ToListAsync();
-            await Task.Run(() =>
+            listItems.Reverse();
+            if (HttpContext.Session.Get<UsersFilter>("UsersFilter") != null)
             {
-                listItems.Reverse();
-                if (HttpContext.Session.Get<UsersFilter>("UsersFilter") != null)
-                {
-                    viewModel.Filter = HttpContext.Session.Get<UsersFilter>("UsersFilter");
-                    listItems = Filtration(listItems, viewModel.Filter);
-                }
-                else viewModel.Filter = new UsersFilter();
-                viewModel.DataList = GetDataList(listItems, 1);
-                viewModel.AddNewItem = new Models.AddNewItem.AddNewItem()
-                {
-                    Title = "Добавить пользователя",
-                    Action = Url.Action("Add", "Users"),
-                    UpdateTagId = "updatedSectionsPage",
-                    AccessRoles = new List<string>()
+                viewModel.Filter = HttpContext.Session.Get<UsersFilter>("UsersFilter");
+                listItems = Filtration(listItems, viewModel.Filter);
+            }
+            else viewModel.Filter = new UsersFilter();
+            viewModel.DataList = GetDataList(listItems, 1);
+            viewModel.AddNewItem = new Models.AddNewItem.AddNewItem()
+            {
+                Title = "Добавить пользователя",
+                Action = Url.Action("Add", "Users"),
+                UpdateTagId = "updatedSectionsPage",
+                AccessRoles = new List<string>()
                     {
                         "Администратор"
                     }
-                };
-            });
+            };
             await LoadPageData();
             if (partialView) return PartialView(viewModel);
             else return View(viewModel);
@@ -69,17 +67,14 @@ namespace CinemasOfSity.Controllers
         {
             UpdatedSectionsPage viewModel = new UpdatedSectionsPage();
             List<User> listItems = await dataContext.Users.Include(x => x.Role).ToListAsync();
-            await Task.Run(() =>
+            listItems.Reverse();
+            if (HttpContext.Session.Get<UsersFilter>("UsersFilter") != null)
             {
-                listItems.Reverse();
-                if (HttpContext.Session.Get<UsersFilter>("UsersFilter") != null)
-                {
-                    viewModel.Filter = HttpContext.Session.Get<UsersFilter>("UsersFilter");
-                    listItems = Filtration(listItems, viewModel.Filter);
-                }
-                else viewModel.Filter = new UsersFilter();
-                viewModel.DataList = GetDataList(listItems, page);
-            });
+                viewModel.Filter = HttpContext.Session.Get<UsersFilter>("UsersFilter");
+                listItems = Filtration(listItems, viewModel.Filter);
+            }
+            else viewModel.Filter = new UsersFilter();
+            viewModel.DataList = GetDataList(listItems, page);
             await LoadPageData();
             return PartialView("UpdatedSectionsPage", viewModel);
         }
@@ -102,12 +97,9 @@ namespace CinemasOfSity.Controllers
         {
             UsersDataList dataList = new UsersDataList();
             List<User> listItems = await dataContext.Users.Include(x => x.Role).ToListAsync();
-            await Task.Run(() =>
-            {
-                listItems.Reverse();
-                listItems = Filtration(listItems, filter);
-                dataList = GetDataList(listItems, 1);
-            });
+            listItems.Reverse();
+            listItems = Filtration(listItems, filter);
+            dataList = GetDataList(listItems, 1);
             await LoadPageData();
             return PartialView("UsersDataList", dataList);
         }
@@ -117,25 +109,22 @@ namespace CinemasOfSity.Controllers
             if (ModelState.IsValid && await CheckErrors(addItem))
             {
                 User item = new User();
-                await Task.Run(() =>
+                item.Role = await dataContext.Roles.Where(x => x.Name == addItem.Role).FirstAsync();
+                var itemProperties = item.GetType().GetProperties();
+                var itemUpdateProperties = addItem.GetType().GetProperties();
+                foreach (var itemUpdateProperty in itemUpdateProperties)
                 {
-                    item.Role = dataContext.Roles.Where(x => x.Name == addItem.Role).First();
-                    var itemProperties = item.GetType().GetProperties();
-                    var itemUpdateProperties = addItem.GetType().GetProperties();
-                    foreach (var itemUpdateProperty in itemUpdateProperties)
+                    if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
                     {
-                        if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
+                        var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
+                        if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
                         {
-                            var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
-                            if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
-                            {
-                                itemProperty.SetValue(item, itemUpdateProperty.GetValue(addItem));
-                            }
+                            itemProperty.SetValue(item, itemUpdateProperty.GetValue(addItem));
                         }
                     }
-                    dataContext.Users.Add(item);
-                    dataContext.SaveChanges();
-                });
+                }
+                await dataContext.Users.AddAsync(item);
+                await dataContext.SaveChangesAsync();
             }
             else LoadErrors();
             return await UpdatePage(1);
@@ -165,25 +154,22 @@ namespace CinemasOfSity.Controllers
             if (ModelState.IsValid && await CheckErrors(updateItem))
             {
                 User item = await dataContext.Users.Where(x => x.Id == updateItem.Id).Include(x => x.Role).FirstAsync();
-                await Task.Run(() =>
+                Role role = await dataContext.Roles.Where(x => x.Name == updateItem.Role).FirstAsync();
+                item.Role = role;
+                var itemProperties = item.GetType().GetProperties();
+                var itemUpdateProperties = updateItem.GetType().GetProperties();
+                foreach (var itemUpdateProperty in itemUpdateProperties)
                 {
-                    Role role = dataContext.Roles.Where(x => x.Name == updateItem.Role).First();
-                    item.Role = role;
-                    var itemProperties = item.GetType().GetProperties();
-                    var itemUpdateProperties = updateItem.GetType().GetProperties();
-                    foreach (var itemUpdateProperty in itemUpdateProperties)
+                    if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
                     {
-                        if (itemProperties.Any(cinemaProperty => cinemaProperty.Name == itemUpdateProperty.Name))
+                        var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
+                        if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
                         {
-                            var itemProperty = itemProperties.First(x => x.Name == itemUpdateProperty.Name);
-                            if (itemProperty.PropertyType == itemUpdateProperty.PropertyType)
-                            {
-                                itemProperty.SetValue(item, itemUpdateProperty.GetValue(updateItem));
-                            }
+                            itemProperty.SetValue(item, itemUpdateProperty.GetValue(updateItem));
                         }
                     }
-                    dataContext.SaveChanges();
-                });
+                }
+                await dataContext.SaveChangesAsync();
             }
             else LoadErrors();
             return await UpdatePage(page);
@@ -217,11 +203,8 @@ namespace CinemasOfSity.Controllers
             if (await CheckErrors(id))
             {
                 User item = await dataContext.Users.Where(x => x.Id == id).FirstAsync();
-                await Task.Run(() =>
-                {
-                    dataContext.Users.Remove(item);
-                    dataContext.SaveChanges();
-                });
+                dataContext.Users.Remove(item);
+                await dataContext.SaveChangesAsync();
             }
             else LoadErrors();
             return await UpdatePage(page);
